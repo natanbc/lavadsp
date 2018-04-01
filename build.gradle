@@ -1,0 +1,32 @@
+plugins {
+    id 'java'
+    id 'maven'
+    id 'maven-publish'
+}
+
+group 'com.github.natanbc'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    compileOnly 'com.sedmelluq:lavaplayer:1.2.59'
+    testCompile 'com.sedmelluq:lavaplayer:1.2.59'
+    testCompile 'ch.qos.logback:logback-classic:1.2.3'
+}
+
+publishing {
+    publications {
+        MavenRelease(MavenPublication) {
+            from components.java
+            groupId group
+            artifactId archivesBaseName
+            version version
+        }
+    }
+}
