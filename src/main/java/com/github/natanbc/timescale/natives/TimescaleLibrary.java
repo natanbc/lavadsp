@@ -1,22 +1,27 @@
 package com.github.natanbc.timescale.natives;
 
 class TimescaleLibrary {
-    static TimescaleLibrary getInstance() {
-        TimescaleNativeLibLoader.loadTimescaleLibrary();
-        return new TimescaleLibrary();
-    }
+    static native String soundTouchVersion();
 
-    native long create(int channels, int sampleRate, double speedRate);
+    static native int soundTouchVersionID();
 
-    native void setSpeed(long instance, double rate);
+    static native boolean criticalMethodsAvailable();
 
-    native void setPitch(long instance, double pitch);
+    static native long create(int channels, int sampleRate, double speedRate);
 
-    native int process(long instance, float[] input, int inputOffset, int inputLength, float[] output, int outputOffset, int outputLength, int[] written);
+    static native void setSpeed(long instance, double rate);
 
-    native int read(long instance, float[] output, int outputOffset, int outputLength);
+    static native void setPitch(long instance, double pitch);
 
-    native void reset(long instance);
+    static native int getSetting(long instance, int setting);
 
-    native void destroy(long instance);
+    static native boolean setSetting(long instance, int setting, int value);
+
+    static native int process(long instance, float[] input, int inputOffset, int inputLength, float[] output, int outputOffset, int outputLength, int[] written);
+
+    static native int read(long instance, float[] output, int outputOffset, int outputLength);
+
+    static native void reset(long instance);
+
+    static native void destroy(long instance);
 }

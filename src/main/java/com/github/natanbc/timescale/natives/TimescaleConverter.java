@@ -4,7 +4,6 @@ import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
 
 public class TimescaleConverter extends NativeResourceHolder {
     private final int[] buffer = new int[1];
-    private final TimescaleLibrary library;
     private final long instance;
 
     public TimescaleConverter(int channels, int sampleRate, double speedRate) {
@@ -17,20 +16,20 @@ public class TimescaleConverter extends NativeResourceHolder {
         if(speedRate <= 0) {
             throw new IllegalArgumentException("Speed rate <= 0");
         }
-        this.library = TimescaleLibrary.getInstance();
-        this.instance = library.create(channels, sampleRate, speedRate);
+        TimescaleNativeLibLoader.loadTimescaleLibrary();
+        this.instance = TimescaleLibrary.create(channels, sampleRate, speedRate);
     }
 
     public void reset() {
         checkNotReleased();
 
-        library.reset(instance);
+        TimescaleLibrary.reset(instance);
     }
 
     public int process(float[] input, int inputOffset, int inputLength, float[] output, int outputOffset, int outputLength) {
         checkNotReleased();
 
-        int error = library.process(instance, input, inputOffset, inputLength, output, outputOffset, outputLength, buffer);
+        int error = TimescaleLibrary.process(instance, input, inputOffset, inputLength, output, outputOffset, outputLength, buffer);
         if(error != 0) {
             throw new IllegalStateException("Library returned code " + error);
         }
@@ -40,23 +39,47 @@ public class TimescaleConverter extends NativeResourceHolder {
     public int read(float[] output, int outputOffset, int outputLength) {
         checkNotReleased();
 
-        return library.read(instance, output, outputOffset, outputLength);
+        return TimescaleLibrary.read(instance, output, outputOffset, outputLength);
     }
 
     public void setSpeed(double speed) {
         checkNotReleased();
 
-        library.setSpeed(instance, speed);
+        TimescaleLibrary.setSpeed(instance, speed);
     }
 
     public void setPitch(double pitch) {
         checkNotReleased();
 
-        library.setPitch(instance, pitch);
+        TimescaleLibrary.setPitch(instance, pitch);
+    }
+
+    public int getNominalInputSequence() {
+        return getSetting(6);
+    }
+
+    public int getNominalOutputSequence() {
+        return getSetting(7);
+    }
+
+    public int getInitialLatency() {
+        return getSetting(8);
+    }
+
+    int getSetting(int setting) {
+        checkNotReleased();
+
+        return TimescaleLibrary.getSetting(instance, setting);
+    }
+
+    boolean setSetting(int setting, int value) {
+        checkNotReleased();
+
+        return TimescaleLibrary.setSetting(instance, setting, value);
     }
 
     @Override
     protected void freeResources() {
-        library.destroy(instance);
+        TimescaleLibrary.destroy(instance);
     }
 }

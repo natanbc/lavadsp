@@ -1,5 +1,6 @@
 package com.github.natanbc.timescale;
 
+import com.github.natanbc.timescale.natives.Setting;
 import com.github.natanbc.timescale.natives.TimescaleConverter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
@@ -39,6 +40,18 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
         }
     }
 
+    public <T> T getSetting(Setting<T> setting) {
+        return setting.get(converters[0]);
+    }
+
+    public <T> boolean setSetting(Setting<T> setting, T value) {
+        boolean success = false;
+        for(TimescaleConverter converter : converters) {
+            success = setting.set(converter, value);
+        }
+        return success;
+    }
+
     @Override
     public void seekPerformed(long requestedTime, long providedTime) {
         for (TimescaleConverter converter : converters) {
@@ -47,7 +60,7 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     }
 
     @Override
-    public void flush() throws InterruptedException {
+    public void flush() {
     }
 
     @Override
