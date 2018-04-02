@@ -66,13 +66,13 @@ public class TimescaleConverter extends NativeResourceHolder {
         return getSetting(8);
     }
 
-    int getSetting(int setting) {
+    public int getSetting(int setting) {
         checkNotReleased();
 
         return TimescaleLibrary.getSetting(instance, setting);
     }
 
-    boolean setSetting(int setting, int value) {
+    public boolean setSetting(int setting, int value) {
         checkNotReleased();
 
         return TimescaleLibrary.setSetting(instance, setting, value);

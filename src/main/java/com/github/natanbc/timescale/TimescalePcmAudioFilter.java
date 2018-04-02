@@ -1,6 +1,5 @@
 package com.github.natanbc.timescale;
 
-import com.github.natanbc.timescale.natives.Setting;
 import com.github.natanbc.timescale.natives.TimescaleConverter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
