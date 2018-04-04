@@ -54,6 +54,12 @@ public class TimescaleConverter extends NativeResourceHolder {
         TimescaleLibrary.setPitch(instance, pitch);
     }
 
+    public void setRate(double rate) {
+        checkNotReleased();
+
+        TimescaleLibrary.setRate(instance, rate);
+    }
+
     public int getNominalInputSequence() {
         return getSetting(6);
     }
@@ -76,6 +82,36 @@ public class TimescaleConverter extends NativeResourceHolder {
         checkNotReleased();
 
         return TimescaleLibrary.setSetting(instance, setting, value);
+    }
+
+    public double getInputOutputSampleRatio() {
+        checkNotReleased();
+
+        return TimescaleLibrary.getInputOutputSampleRatio(instance);
+    }
+
+    public void flush() {
+        checkNotReleased();
+
+        TimescaleLibrary.flush(instance);
+    }
+
+    public int numUnprocessedSamples() {
+        checkNotReleased();
+
+        return TimescaleLibrary.numUnprocessedSamples(instance);
+    }
+
+    public int numSamples() {
+        checkNotReleased();
+
+        return TimescaleLibrary.numSamples(instance);
+    }
+
+    public boolean isEmpty() {
+        checkNotReleased();
+
+        return TimescaleLibrary.isEmpty(instance);
     }
 
     @Override

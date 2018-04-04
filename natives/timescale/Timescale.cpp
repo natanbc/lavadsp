@@ -31,7 +31,7 @@ extern "C" {
         return CRITICAL_AVAILABLE;
     }
 
-    METHOD(jlong, create)(JNIEnv *env, jobject thiz, jint channels, jint sampleRate, jdouble speedRate) {
+    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint channels, jint sampleRate, jdouble speedRate) {
         auto st = new SoundTouch();
         st->setChannels((uint32_t)channels);
         st->setSampleRate((uint32_t)sampleRate);
@@ -40,22 +40,22 @@ extern "C" {
         return (jlong)st;
     }
 
-    METHOD(void, destroy)(JNIEnv *env, jobject thiz, jlong instance) {
-        delete (SoundTouch *)instance;
+    METHOD(void, destroy)(JNIEnv* env, jobject thiz, jlong instance) {
+        delete (SoundTouch*)instance;
     }
 
     CRITICALMETHOD(jint, process)(jlong instance, jint unused1, jfloat* src, jint inputOffset, jint inputLength, jint unused2, jfloat* dest, jint outputOffset, jint outputLength, jint unused3, jint* written) {
-        auto st = (SoundTouch *)instance;
+        auto st = (SoundTouch*)instance;
         st->putSamples(src + inputOffset, (uint32_t)inputLength);
         uint32_t r = st->receiveSamples(dest + outputOffset, (uint32_t)outputLength);
         written[0] = (int32_t)r;
         return 0;
     }
 
-    METHOD(jint, process)(JNIEnv *env, jobject thiz, jlong instance, jfloatArray input, jint inputOffset, jint inputLength,
+    METHOD(jint, process)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray input, jint inputOffset, jint inputLength,
         jfloatArray output, jint outputOffset, jint outputLength, jintArray written) {
-        auto src = (jfloat *)env->GetPrimitiveArrayCritical(input, nullptr);
-        auto dest = (jfloat *)env->GetPrimitiveArrayCritical(output, nullptr);
+        auto src = (jfloat*)env->GetPrimitiveArrayCritical(input, nullptr);
+        auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto w = (jint*)env->GetPrimitiveArrayCritical(written, nullptr);
         CRITICALNAME(process)(instance, 0, src, inputOffset, inputLength, 0, dest, outputOffset, outputLength, 0, w);
         env->ReleasePrimitiveArrayCritical(input, src, JNI_ABORT);
@@ -70,7 +70,7 @@ extern "C" {
     }
 
     METHOD(jint, read)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray output, jint outputOffset, jint outputLength) {
-        auto dest = (jfloat *)env->GetPrimitiveArrayCritical(output, nullptr);
+        auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto j = CRITICALNAME(read)(instance, 0, dest, outputOffset, outputLength);
         env->ReleasePrimitiveArrayCritical(output, dest, JNI_COMMIT);
         return j;
@@ -88,11 +88,35 @@ extern "C" {
         ((SoundTouch*)instance)->setPitch(pitch);
     }
 
+    METHOD(void, setRate)(JNIEnv* env, jobject thiz, jlong instance, jdouble rate) {
+        ((SoundTouch*)instance)->setRate(rate);
+    }
+
     METHOD(jint, getSetting)(JNIEnv* env, jobject thiz, jlong instance, jint setting) {
         return ((SoundTouch*)instance)->getSetting(setting);
     }
 
     METHOD(jint, setSetting)(JNIEnv* env, jobject thiz, jlong instance, jint setting, jint value) {
         return ((SoundTouch*)instance)->setSetting(setting, value);
+    }
+
+    METHOD(jdouble, getInputOutputSampleRatio)(JNIEnv* env, jobject thiz, jlong instance) {
+        return ((SoundTouch*)instance)->getInputOutputSampleRatio();
+    }
+
+    METHOD(void, flush)(JNIEnv* env, jobject thiz, jlong instance) {
+        ((SoundTouch*)instance)->flush();
+    }
+
+    METHOD(jint, numUnprocessedSamples)(JNIEnv* env, jobject thiz, jlong instance) {
+        return (jint)((SoundTouch*)instance)->numUnprocessedSamples();
+    }
+
+    METHOD(jint, numSamples)(JNIEnv* env, jobject thiz, jlong instance) {
+        return (jint)((SoundTouch*)instance)->numSamples();
+    }
+
+    METHOD(jboolean, isEmpty)(JNIEnv* env, jobject thiz, jlong instance) {
+        return (jboolean)((SoundTouch*)instance)->isEmpty();
     }
 }

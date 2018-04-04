@@ -33,10 +33,56 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
         }
     }
 
+    public void setSpeedChange(double change) {
+        setSpeed(1.0 + 0.01 * change);
+    }
+
     public void setPitch(double pitch) {
         for(TimescaleConverter converter : converters) {
             converter.setPitch(pitch);
         }
+    }
+
+    public void setPitchOctaves(double pitch) {
+        setPitch(Math.exp(0.69314718056 * Math.max(Math.min(pitch, 1.0), -1.0)));
+    }
+
+    public void setPitchSemiTones(double pitch) {
+        setPitchOctaves(pitch / 12.0);
+    }
+
+    public void setRate(double rate) {
+        for(TimescaleConverter converter : converters) {
+            converter.setRate(rate);
+        }
+    }
+
+    public void setRateChange(double change) {
+        setRate(1.0 + 0.01 * change);
+    }
+
+    public int[] getNominalInputSequences() {
+        int[] ret = new int[converters.length];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = converters[i].getNominalInputSequence();
+        }
+        return ret;
+    }
+
+    public int[] getNominalOutputSequences() {
+        int[] ret = new int[converters.length];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = converters[i].getNominalOutputSequence();
+        }
+        return ret;
+    }
+
+    public int[] getInitialLatencies() {
+        int[] ret = new int[converters.length];
+        for(int i = 0; i < ret.length; i++) {
+            ret[i] = converters[i].getInitialLatency();
+        }
+        return ret;
     }
 
     public <T> T getSetting(Setting<T> setting) {
@@ -60,6 +106,9 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
 
     @Override
     public void flush() {
+        for(TimescaleConverter converter : converters) {
+            converter.flush();
+        }
     }
 
     @Override

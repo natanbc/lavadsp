@@ -9,9 +9,11 @@ class TimescaleLibrary {
 
     static native long create(int channels, int sampleRate, double speedRate);
 
-    static native void setSpeed(long instance, double rate);
+    static native void setSpeed(long instance, double speed);
 
     static native void setPitch(long instance, double pitch);
+
+    static native void setRate(long instance, double rate);
 
     static native int getSetting(long instance, int setting);
 
@@ -22,6 +24,16 @@ class TimescaleLibrary {
     static native int read(long instance, float[] output, int outputOffset, int outputLength);
 
     static native void reset(long instance);
+
+    static native double getInputOutputSampleRatio(long instance);
+
+    static native void flush(long instance);
+
+    static native int numUnprocessedSamples(long instance);
+
+    static native int numSamples(long instance);
+
+    static native boolean isEmpty(long instance);
 
     static native void destroy(long instance);
 }
