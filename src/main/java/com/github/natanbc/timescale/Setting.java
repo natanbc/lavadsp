@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public abstract class Setting<T> {
     /**
-     * Enable/disable anti-alias filter in pitch transposer
+     * Enable/disable anti-alias filter in pitch transposer.
      */
     public static final Setting<Boolean> USE_ANTI_ALIASING_FILTER = new Setting<Boolean>("USE_ANTI_ALIASING_FILTER", 0) {
         @Override
@@ -22,7 +22,7 @@ public abstract class Setting<T> {
     };
 
     /**
-     * Pitch transposer anti-alias filter length
+     * Pitch transposer anti-alias filter length.
      */
     public static final Setting<Integer> ANTI_ALIASING_FILTER_LENGTH = new Setting<Integer>("ANTI_ALIASING_FILTER_LENGTH", 1) {
         @Override
@@ -40,7 +40,7 @@ public abstract class Setting<T> {
     /**
      * Enable/disable quick seeking algorithm in tempo changer routine
      * (enabling quick seeking lowers CPU utilization but causes a minor sound
-     * quality compromising)
+     * quality compromising).
      */
     public static final Setting<Boolean> USE_QUICK_SEEK = new Setting<Boolean>("USE_QUICK_SEEK", 2) {
         @Override
