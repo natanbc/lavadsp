@@ -9,6 +9,9 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     private final FloatPcmAudioFilter downstream;
     private final TimescaleConverter[] converters;
     private final float[][] outputSegments;
+    private volatile double speed;
+    private volatile double pitch;
+    private volatile double rate;
 
     /**
      * @param channels Number of channels in input data.
@@ -18,8 +21,11 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      */
     public TimescalePcmAudioFilter(int channels, FloatPcmAudioFilter downstream, int sampleRate, double timeScale) {
         this.downstream = downstream;
-        converters = new TimescaleConverter[channels];
-        outputSegments = new float[channels][];
+        this.converters = new TimescaleConverter[channels];
+        this.outputSegments = new float[channels][];
+        this.speed = timeScale;
+        this.pitch = 1.0;
+        this.rate = 1.0;
 
         for (int i = 0; i < channels; i++) {
             outputSegments[i] = new float[BUFFER_SIZE];
@@ -28,11 +34,21 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     }
 
     /**
+     * Returns the current playback speed.
+     *
+     * @return The current playback speed. 1.0 means unmodified.
+     */
+    public double getSpeed() {
+        return speed;
+    }
+
+    /**
      * Sets the playback speed. This calls the SoundTouch setTempo function.
      *
      * @param speed Speed to play at. 1.0 means unchanged.
      */
     public void setSpeed(double speed) {
+        this.speed = speed;
         for(TimescaleConverter converter : converters) {
             converter.setSpeed(speed);
         }
@@ -49,11 +65,21 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     }
 
     /**
+     * Returns the current pitch.
+     *
+     * @return The current pitch. 1.0 means unmodified.
+     */
+    public double getPitch() {
+        return pitch;
+    }
+
+    /**
      * Sets the audio pitch.
      *
      * @param pitch Pitch to set. 1.0 means unchanged.
      */
     public void setPitch(double pitch) {
+        this.pitch = pitch;
         for(TimescaleConverter converter : converters) {
             converter.setPitch(pitch);
         }
@@ -83,11 +109,21 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     }
 
     /**
+     * Returns the current playback rate.
+     *
+     * @return The current playback rate. 1.0 means unmodified.
+     */
+    public double getRate() {
+        return rate;
+    }
+
+    /**
      * Sets the audio rate, in percentage, relative to the default.
      *
      * @param rate Rate to set. 1.0 means unchanged.
      */
     public void setRate(double rate) {
+        this.rate = rate;
         for(TimescaleConverter converter : converters) {
             converter.setRate(rate);
         }
