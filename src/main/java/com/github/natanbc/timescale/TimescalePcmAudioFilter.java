@@ -48,6 +48,9 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param speed Speed to play at. 1.0 means unchanged.
      */
     public void setSpeed(double speed) {
+        if(speed <= 0) {
+            throw new IllegalArgumentException("speed <= 0");
+        }
         this.speed = speed;
         for(TimescaleConverter converter : converters) {
             converter.setSpeed(speed);
@@ -79,6 +82,9 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param pitch Pitch to set. 1.0 means unchanged.
      */
     public void setPitch(double pitch) {
+        if(pitch <= 0) {
+            throw new IllegalArgumentException("pitch <= 0");
+        }
         this.pitch = pitch;
         for(TimescaleConverter converter : converters) {
             converter.setPitch(pitch);
@@ -123,6 +129,9 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param rate Rate to set. 1.0 means unchanged.
      */
     public void setRate(double rate) {
+        if(rate <= 0) {
+            throw new IllegalArgumentException("rate <= 0");
+        }
         this.rate = rate;
         for(TimescaleConverter converter : converters) {
             converter.setRate(rate);
