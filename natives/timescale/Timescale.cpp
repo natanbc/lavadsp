@@ -6,14 +6,14 @@ using namespace soundtouch;
 
 extern "C" {
 
-#define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_timescale_natives_TimescaleLibrary_##_NAME
+#define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_lavadsp_natives_TimescaleLibrary_##_NAME
 
 #ifndef NO_CRITICALS
     #define CRITICAL_AVAILABLE true
-    #define CRITICALNAME(_NAME) JavaCritical_com_github_natanbc_timescale_natives_TimescaleLibrary_##_NAME
+    #define CRITICALNAME(_NAME) JavaCritical_com_github_natanbc_timescale_lavadsp_TimescaleLibrary_##_NAME
 #else
     #define CRITICAL_AVAILABLE false
-    #define CRITICALNAME(_NAME) FakeCritical_##_NAME
+    #define CRITICALNAME(_NAME) FakeCritical_com_github_natanbc_timescale_lavadsp_TimescaleLibrary_##_NAME
 #endif
 //see https://stackoverflow.com/questions/36298111/is-it-possible-to-use-sun-misc-unsafe-to-call-c-functions-without-jni/36309652#36309652
 //only really useful for methods manipulating arrays (https://github.com/jnr/jnr-ffi/issues/86#issuecomment-250325189)

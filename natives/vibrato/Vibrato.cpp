@@ -17,6 +17,10 @@ extern "C" {
 //only really useful for methods manipulating arrays (https://github.com/jnr/jnr-ffi/issues/86#issuecomment-250325189)
 #define CRITICALMETHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL CRITICALNAME(_NAME)
 
+    METHOD(jboolean, criticalMethodsAvailable)(JNIEnv* env, jobject thiz) {
+        return CRITICAL_AVAILABLE;
+    }
+
     METHOD(jlong, initialize)(JNIEnv* env, jobject thiz, jint sampleRate) {
         auto v = new BerVibrato();
         v->initialize(sampleRate);
@@ -35,22 +39,24 @@ extern "C" {
         ((BerVibrato*)instance)->setDepth(depth);
     }
 
-    METHOD(void, destroy)(JNIEnv* env, jobject thiz, jlong instance) {
-        delete (BerVibrato*)instance;
-    }
-
-    CRITICALMETHOD(void, process)(jlong instance, jint unused1, jfloat* in, jint unused2, jfloat* out, jint size) {
+    CRITICALMETHOD(void, process)(jlong instance, jint unused1, jfloat* in, jint inputOffset, jint unused2, jfloat* out, jint outputOffset, jint size) {
         auto v = (BerVibrato*)instance;
+        auto actualIn = in + inputOffset;
+        auto actualOut = out + outputOffset;
         for(jint i = 0; i < size; i++) {
-            out[i] = v->processOneSample(in[i]);
+            actualOut[i] = v->processOneSample(actualIn[i]);
         }
     }
 
-    METHOD(void, process)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray input, jfloatArray output, jint size) {
+    METHOD(void, process)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray input, jint inputOffset, jfloatArray output, jint outputOffset, jint size) {
         auto in = (jfloat*)env->GetPrimitiveArrayCritical(input, nullptr);
         auto out = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
-        CRITICALNAME(process)(instance, 0, in, 0, out, size);
+        CRITICALNAME(process)(instance, 0, in, inputOffset, 0, out, outputOffset, size);
         env->ReleasePrimitiveArrayCritical(input, in, JNI_ABORT);
         env->ReleasePrimitiveArrayCritical(output, out, JNI_COMMIT);
+    }
+
+    METHOD(void, destroy)(JNIEnv* env, jobject thiz, jlong instance) {
+        delete (BerVibrato*)instance;
     }
 }

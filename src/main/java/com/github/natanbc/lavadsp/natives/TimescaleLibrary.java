@@ -1,4 +1,4 @@
-package com.github.natanbc.timescale.natives;
+package com.github.natanbc.lavadsp.natives;
 
 class TimescaleLibrary {
     static native String soundTouchVersion();

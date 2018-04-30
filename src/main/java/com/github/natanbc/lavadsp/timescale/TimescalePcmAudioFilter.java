@@ -1,6 +1,6 @@
-package com.github.natanbc.timescale;
+package com.github.natanbc.lavadsp.timescale;
 
-import com.github.natanbc.timescale.natives.TimescaleConverter;
+import com.github.natanbc.lavadsp.natives.TimescaleConverter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
