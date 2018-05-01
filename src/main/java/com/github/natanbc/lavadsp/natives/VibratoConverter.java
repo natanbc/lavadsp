@@ -13,6 +13,31 @@ public class VibratoConverter extends NativeResourceHolder {
         this.instance = VibratoLibrary.initialize(sampleRate);
     }
 
+    public void setDepth(float depth) {
+        checkNotReleased();
+
+        if(depth <= 0) {
+            throw new IllegalArgumentException("Depth <= 0");
+        }
+        if(depth > 1) {
+            throw new IllegalArgumentException("Depth > 1");
+        }
+
+        VibratoLibrary.setDepth(instance, depth);
+    }
+
+    public void setFrequency(float frequency) {
+        checkNotReleased();
+
+        if(frequency <= 0) {
+            throw new IllegalArgumentException("Frequency <= 0");
+        }
+        if(frequency > VibratoNativeLibLoader.maxFrequency()) {
+            throw new IllegalArgumentException("Frequency > max (" + VibratoNativeLibLoader.maxFrequency() + ")");
+        }
+        VibratoLibrary.setFrequency(instance, frequency);
+    }
+
     public void process(float[] input, int inputOffset, float[] output, int outputOffset, int samples) {
         checkNotReleased();
 
