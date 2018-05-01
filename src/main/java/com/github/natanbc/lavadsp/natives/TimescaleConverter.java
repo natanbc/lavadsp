@@ -6,18 +6,15 @@ public class TimescaleConverter extends NativeResourceHolder {
     private final int[] buffer = new int[1];
     private final long instance;
 
-    public TimescaleConverter(int channels, int sampleRate, double speedRate) {
+    public TimescaleConverter(int channels, int sampleRate) {
         if(channels < 1) {
             throw new IllegalArgumentException("Channels < 1");
         }
         if(sampleRate < 1) {
             throw new IllegalArgumentException("Sample rate < 1");
         }
-        if(speedRate <= 0) {
-            throw new IllegalArgumentException("Speed rate <= 0");
-        }
         TimescaleNativeLibLoader.loadTimescaleLibrary();
-        this.instance = TimescaleLibrary.create(channels, sampleRate, speedRate);
+        this.instance = TimescaleLibrary.create(channels, sampleRate);
     }
 
     public void reset() {
@@ -45,17 +42,29 @@ public class TimescaleConverter extends NativeResourceHolder {
     public void setSpeed(double speed) {
         checkNotReleased();
 
+        if(speed <= 0) {
+            throw new IllegalArgumentException("speed <= 0");
+        }
+
         TimescaleLibrary.setSpeed(instance, speed);
     }
 
     public void setPitch(double pitch) {
         checkNotReleased();
 
+        if(pitch <= 0) {
+            throw new IllegalArgumentException("pitch <= 0");
+        }
+
         TimescaleLibrary.setPitch(instance, pitch);
     }
 
     public void setRate(double rate) {
         checkNotReleased();
+
+        if(rate <= 0) {
+            throw new IllegalArgumentException("rate <= 0");
+        }
 
         TimescaleLibrary.setRate(instance, rate);
     }

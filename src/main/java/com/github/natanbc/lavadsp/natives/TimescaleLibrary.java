@@ -7,7 +7,7 @@ class TimescaleLibrary {
 
     static native boolean criticalMethodsAvailable();
 
-    static native long create(int channels, int sampleRate, double speedRate);
+    static native long create(int channels, int sampleRate);
 
     static native void setSpeed(long instance, double speed);
 

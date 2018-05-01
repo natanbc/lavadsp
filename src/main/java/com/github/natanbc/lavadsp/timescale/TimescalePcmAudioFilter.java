@@ -14,22 +14,21 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     private volatile double rate;
 
     /**
-     * @param channels Number of channels in input data.
      * @param downstream Next filter in chain.
+     * @param channels Number of channels in input data.
      * @param sampleRate Sample rate.
-     * @param timeScale Time scale rate.
      */
-    public TimescalePcmAudioFilter(int channels, FloatPcmAudioFilter downstream, int sampleRate, double timeScale) {
+    public TimescalePcmAudioFilter(FloatPcmAudioFilter downstream, int channels, int sampleRate) {
         this.downstream = downstream;
         this.converters = new TimescaleConverter[channels];
         this.outputSegments = new float[channels][];
-        this.speed = timeScale;
+        this.speed = 1.0;
         this.pitch = 1.0;
         this.rate = 1.0;
 
         for (int i = 0; i < channels; i++) {
             outputSegments[i] = new float[BUFFER_SIZE];
-            converters[i] = new TimescaleConverter(1, sampleRate, timeScale);
+            converters[i] = new TimescaleConverter(1, sampleRate);
         }
     }
 
@@ -48,13 +47,10 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param speed Speed to play at. 1.0 means unchanged.
      */
     public void setSpeed(double speed) {
-        if(speed <= 0) {
-            throw new IllegalArgumentException("speed <= 0");
-        }
-        this.speed = speed;
         for(TimescaleConverter converter : converters) {
             converter.setSpeed(speed);
         }
+        this.speed = speed;
     }
 
     /**
@@ -82,13 +78,10 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param pitch Pitch to set. 1.0 means unchanged.
      */
     public void setPitch(double pitch) {
-        if(pitch <= 0) {
-            throw new IllegalArgumentException("pitch <= 0");
-        }
-        this.pitch = pitch;
         for(TimescaleConverter converter : converters) {
             converter.setPitch(pitch);
         }
+        this.pitch = pitch;
     }
 
     /**
@@ -129,13 +122,10 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * @param rate Rate to set. 1.0 means unchanged.
      */
     public void setRate(double rate) {
-        if(rate <= 0) {
-            throw new IllegalArgumentException("rate <= 0");
-        }
-        this.rate = rate;
         for(TimescaleConverter converter : converters) {
             converter.setRate(rate);
         }
+        this.rate = rate;
     }
 
     /**

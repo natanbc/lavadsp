@@ -31,11 +31,10 @@ extern "C" {
         return CRITICAL_AVAILABLE;
     }
 
-    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint channels, jint sampleRate, jdouble speedRate) {
+    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint channels, jint sampleRate) {
         auto st = new SoundTouch();
         st->setChannels((uint32_t)channels);
         st->setSampleRate((uint32_t)sampleRate);
-        st->setTempo(speedRate);
         st->clear();
         return (jlong)st;
     }
