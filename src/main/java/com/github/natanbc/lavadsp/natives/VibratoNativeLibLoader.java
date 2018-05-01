@@ -10,9 +10,9 @@ public class VibratoNativeLibLoader {
     public static void loadVibratoLibrary() {
         if(loaded) return;
         NativeLibLoader.load(VibratoNativeLibLoader.class, "vibrato");
-        loaded = true;
         criticalNativesAvailable = VibratoLibrary.criticalMethodsAvailable();
         maxFrequency = VibratoLibrary.maxFrequency();
+        loaded = true;
     }
 
     public static boolean isLoaded() {

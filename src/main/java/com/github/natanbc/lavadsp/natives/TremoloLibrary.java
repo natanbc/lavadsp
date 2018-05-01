@@ -1,15 +1,13 @@
 package com.github.natanbc.lavadsp.natives;
 
-class VibratoLibrary {
+class TremoloLibrary {
     static native boolean criticalMethodsAvailable();
-
-    static native float maxFrequency();
 
     static native long create(int sampleRate);
 
-    static native void setFrequency(long instance, float frequency);
+    static native void setFrequency(long instance, double frequency);
 
-    static native void setDepth(long instance, float depth);
+    static native void setDepth(long instance, double depth);
 
     static native void process(long instance, float[] input, int inputOffset, float[] output, int outputOffset, int samples);
 

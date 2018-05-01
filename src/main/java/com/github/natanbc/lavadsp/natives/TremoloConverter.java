@@ -2,18 +2,18 @@ package com.github.natanbc.lavadsp.natives;
 
 import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
 
-public class VibratoConverter extends NativeResourceHolder {
+public class TremoloConverter extends NativeResourceHolder {
     private final long instance;
 
-    public VibratoConverter(int sampleRate) {
+    public TremoloConverter(int sampleRate) {
         if(sampleRate < 1) {
             throw new IllegalArgumentException("Sample rate < 1");
         }
-        VibratoNativeLibLoader.loadVibratoLibrary();
-        this.instance = VibratoLibrary.create(sampleRate);
+        TremoloNativeLibLoader.loadTremoloLibrary();
+        this.instance = TremoloLibrary.create(sampleRate);
     }
 
-    public void setDepth(float depth) {
+    public void setDepth(double depth) {
         checkNotReleased();
 
         if(depth <= 0) {
@@ -23,29 +23,26 @@ public class VibratoConverter extends NativeResourceHolder {
             throw new IllegalArgumentException("Depth > 1");
         }
 
-        VibratoLibrary.setDepth(instance, depth);
+        TremoloLibrary.setDepth(instance, depth);
     }
 
-    public void setFrequency(float frequency) {
+    public void setFrequency(double frequency) {
         checkNotReleased();
 
         if(frequency <= 0) {
             throw new IllegalArgumentException("Frequency <= 0");
         }
-        if(frequency > VibratoNativeLibLoader.maxFrequency()) {
-            throw new IllegalArgumentException("Frequency > max (" + VibratoNativeLibLoader.maxFrequency() + ")");
-        }
-        VibratoLibrary.setFrequency(instance, frequency);
+        TremoloLibrary.setFrequency(instance, frequency);
     }
 
     public void process(float[] input, int inputOffset, float[] output, int outputOffset, int samples) {
         checkNotReleased();
 
-        VibratoLibrary.process(instance, input, inputOffset, output, outputOffset, samples);
+        TremoloLibrary.process(instance, input, inputOffset, output, outputOffset, samples);
     }
 
     @Override
     protected void freeResources() {
-        VibratoLibrary.destroy(instance);
+        TremoloLibrary.destroy(instance);
     }
 }

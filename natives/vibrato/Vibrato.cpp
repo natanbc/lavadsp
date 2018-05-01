@@ -21,7 +21,7 @@ extern "C" {
         return CRITICAL_AVAILABLE;
     }
 
-    METHOD(jlong, initialize)(JNIEnv* env, jobject thiz, jint sampleRate) {
+    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint sampleRate) {
         auto v = new BerVibrato();
         v->initialize(sampleRate);
         return (jlong)v;

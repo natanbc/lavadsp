@@ -11,10 +11,10 @@ public class TimescaleNativeLibLoader {
     public static void loadTimescaleLibrary() {
         if(loaded) return;
         NativeLibLoader.load(TimescaleNativeLibLoader.class, "timescale");
-        loaded = true;
         soundTouchVersion = TimescaleLibrary.soundTouchVersion();
         soundTouchVersionID = TimescaleLibrary.soundTouchVersionID();
         criticalNativesAvailable = TimescaleLibrary.criticalMethodsAvailable();
+        loaded = true;
     }
 
     public static boolean isLoaded() {
