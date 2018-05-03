@@ -17,7 +17,7 @@ extern "C" {
 
 #define SETTER(_NAME) \
     METHOD(void, _NAME)(JNIEnv* env, jobject thiz, jlong instance, jdouble value) {\
-        ((Distortion*)instance)->##_NAME##(value);\
+        ((Distortion*)instance)-> _NAME (value);\
     }
 
     METHOD(jboolean, criticalMethodsAvailable)(JNIEnv* env, jobject thiz) {
