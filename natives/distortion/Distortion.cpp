@@ -24,15 +24,22 @@ extern "C" {
         return CRITICAL_AVAILABLE;
     }
 
+    METHOD(jint, allFunctions)(JNIEnv* env, jobject thiz) {
+        return ALL_FUNCTIONS;
+    }
+
     METHOD(jlong, create)(JNIEnv* env, jobject thiz) {
         return (jlong)new Distortion();
     }
 
+    SETTER(setSinOffset)
     SETTER(setSinScale)
+    SETTER(setCosOffset)
     SETTER(setCosScale)
+    SETTER(setTanOffset)
     SETTER(setTanScale)
-    SETTER(setScale)
     SETTER(setOffset)
+    SETTER(setScale)
 
     METHOD(void, enable)(JNIEnv* env, jobject thiz, jlong instance, jint functions) {
         ((Distortion*)instance)->enable(functions);

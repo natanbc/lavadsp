@@ -2,7 +2,7 @@ package com.github.natanbc.lavadsp.natives;
 
 import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
 
-public class VibratoConverter extends NativeResourceHolder {
+public class VibratoConverter extends NativeResourceHolder implements Converter {
     private final long instance;
 
     public VibratoConverter(int sampleRate) {

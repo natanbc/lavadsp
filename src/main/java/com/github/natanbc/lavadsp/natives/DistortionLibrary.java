@@ -7,17 +7,25 @@ class DistortionLibrary {
 
     static native boolean criticalMethodsAvailable();
 
+    static native int allFunctions();
+
     static native long create();
+
+    static native void setSinOffset(long instance, double offset);
 
     static native void setSinScale(long instance, double scale);
 
+    static native void setCosOffset(long instance, double offset);
+
     static native void setCosScale(long instance, double scale);
+
+    static native void setTanOffset(long instance, double offset);
 
     static native void setTanScale(long instance, double scale);
 
-    static native void setScale(long instance, double scale);
-
     static native void setOffset(long instance, double offset);
+
+    static native void setScale(long instance, double scale);
 
     static native void enable(long instance, int functions);
 

@@ -5,39 +5,43 @@
 Distortion::Distortion() {}
 Distortion::~Distortion() {}
 
-void Distortion::setSinScale(jdouble scale) {
-    this->sinScale = scale;
-}
+#define SETTER(_NAME,_FIELD) \
+    void Distortion::_NAME(jdouble v) {\
+        this->_FIELD = v;\
+    }
 
-void Distortion::setCosScale(jdouble scale) {
-    this->cosScale = scale;
-}
+SETTER(setSinOffset, sinOffset)
+SETTER(setSinScale, sinScale)
 
-void Distortion::setTanScale(jdouble scale) {
-    this->tanScale = scale;
-}
+SETTER(setCosOffset, cosOffset)
+SETTER(setCosScale, cosScale)
 
-void Distortion::setScale(jdouble scale) {
-    this->scale = scale;
-}
+SETTER(setTanOffset, tanOffset)
+SETTER(setTanScale, tanScale)
 
-void Distortion::setOffset(jdouble offset) {
-    this->offset = offset;
-}
+SETTER(setOffset, offset)
+SETTER(setScale, scale)
 
 void Distortion::process(jfloat* input, jint inputOffset, jfloat* output, jint outputOffset, jint size) {
     jfloat* actualIn = input + inputOffset;
     jfloat* actualOut = output + outputOffset;
-    jdouble _sin = sinScale;
-    jdouble _cos = cosScale;
-    jdouble _tan = tanScale;
-    jdouble _s = scale;
-    jdouble _o = offset;
+    jdouble o_sin = sinOffset;
+    jdouble s_sin = sinScale;
+    jdouble o_cos = cosOffset;
+    jdouble s_cos = cosScale;
+    jdouble o_tan = tanOffset;
+    jdouble s_tan = tanScale;
+    jdouble o = offset;
+    jdouble s = scale;
     bool useSin = isEnabled(FUNCTION_SIN);
     bool useCos = isEnabled(FUNCTION_COS);
     bool useTan = isEnabled(FUNCTION_TAN);
     for(jint i = 0; i < size; i++) {
         jfloat sample = actualIn[i];
-        actualOut[i] = fmax(-1.0, fmin(1.0, _o + _s * (useSin ? sin(sample * _sin) : 1) * (useCos ? cos(sample * _cos) : 1) * (useTan ? tan(sample * _tan) : 1)));
+        double sampleSin = o_sin + sin(sample * s_sin);
+        double sampleCos = o_cos + cos(sample * s_cos);
+        double sampleTan = o_tan + tan(sample * s_tan);
+        double result = o + s * (useSin ? sampleSin : 1) * (useCos ? sampleCos : 1) * (useTan ? sampleTan : 1);
+        actualOut[i] = fmax(-1.0, fmin(1.0, result));
     }
 }
