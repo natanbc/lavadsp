@@ -6,6 +6,9 @@ using namespace soundtouch;
 
 extern "C" {
 
+#define RELEASE_ARRAY(_ENV,_ARRAY,_CARRAY)\
+    _ENV -> ReleasePrimitiveArrayCritical(_ARRAY, _CARRAY, 0)
+
 #define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_lavadsp_natives_TimescaleLibrary_##_NAME
 
 #ifndef NO_CRITICALS
@@ -57,9 +60,9 @@ extern "C" {
         auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto w = (jint*)env->GetPrimitiveArrayCritical(written, nullptr);
         CRITICALNAME(process)(instance, 0, src, inputOffset, inputLength, 0, dest, outputOffset, outputLength, 0, w);
-        env->ReleasePrimitiveArrayCritical(input, src, JNI_ABORT);
-        env->ReleasePrimitiveArrayCritical(output, dest, JNI_COMMIT);
-        env->ReleasePrimitiveArrayCritical(written, w, JNI_COMMIT);
+        RELEASE_ARRAY(env, input, src);
+        RELEASE_ARRAY(env, output, dest);
+        RELEASE_ARRAY(env, written, w);
         return 0;
     }
 
@@ -71,7 +74,7 @@ extern "C" {
     METHOD(jint, read)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray output, jint outputOffset, jint outputLength) {
         auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto j = CRITICALNAME(read)(instance, 0, dest, outputOffset, outputLength);
-        env->ReleasePrimitiveArrayCritical(output, dest, JNI_COMMIT);
+        RELEASE_ARRAY(env, output, dest);
         return j;
     }
 

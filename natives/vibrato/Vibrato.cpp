@@ -4,6 +4,9 @@
 
 extern "C" {
 
+#define RELEASE_ARRAY(_ENV,_ARRAY,_CARRAY)\
+    _ENV -> ReleasePrimitiveArrayCritical(_ARRAY, _CARRAY, 0)
+
 #define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_lavadsp_natives_VibratoLibrary_##_NAME
 
 #ifndef NO_CRITICALS
@@ -52,8 +55,8 @@ extern "C" {
         auto in = (jfloat*)env->GetPrimitiveArrayCritical(input, nullptr);
         auto out = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         CRITICALNAME(process)(instance, 0, in, inputOffset, 0, out, outputOffset, size);
-        env->ReleasePrimitiveArrayCritical(input, in, JNI_ABORT);
-        env->ReleasePrimitiveArrayCritical(output, out, JNI_COMMIT);
+        RELEASE_ARRAY(env, input, in);
+        RELEASE_ARRAY(env, output, out);
     }
 
     METHOD(void, destroy)(JNIEnv* env, jobject thiz, jlong instance) {
