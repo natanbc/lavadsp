@@ -20,10 +20,10 @@ do
    $("${i}/compile-mac.sh" > "${i}.log")
 done
 
-if [ deploy == 1 ]; then
-    "cp *.dylib ../src/main/resources/natives/darwin/"
+if [ $deploy == 1 ]; then
+    cp *.dylib ../src/main/resources/natives/darwin/
 fi
 
-if [ cleanlogs == 1 ]; then
-    "rm *.log"
+if [ $cleanlogs == 1 ]; then
+    rm *.log
 fi

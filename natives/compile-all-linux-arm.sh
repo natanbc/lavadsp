@@ -20,10 +20,10 @@ do
    $("${i}/compile-linux.sh" > "${i}.log")
 done
 
-if [ deploy == 1 ]; then
-    "cp *.so ../src/main/resources/natives/linux-arm/"
+if [ $deploy == 1 ]; then
+    cp *.so ../src/main/resources/natives/linux-arm/
 fi
 
-if [ cleanlogs == 1 ]; then
-    "rm *.log"
+if [ $cleanlogs == 1 ]; then
+    rm *.log
 fi
