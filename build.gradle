@@ -15,8 +15,8 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'com.sedmelluq:lavaplayer:1.2.62'
-    testCompile 'com.sedmelluq:lavaplayer:1.2.62'
+    compileOnly 'com.sedmelluq:lavaplayer:1.2.63'
+    testCompile 'com.sedmelluq:lavaplayer:1.2.63'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
 }
 

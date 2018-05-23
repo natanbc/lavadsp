@@ -6,14 +6,17 @@ using namespace soundtouch;
 
 extern "C" {
 
-#define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_timescale_natives_TimescaleLibrary_##_NAME
+#define RELEASE_ARRAY(_ENV,_ARRAY,_CARRAY)\
+    _ENV -> ReleasePrimitiveArrayCritical(_ARRAY, _CARRAY, 0)
+
+#define METHOD(_RETURN, _NAME) JNIEXPORT _RETURN JNICALL Java_com_github_natanbc_lavadsp_natives_TimescaleLibrary_##_NAME
 
 #ifndef NO_CRITICALS
     #define CRITICAL_AVAILABLE true
-    #define CRITICALNAME(_NAME) JavaCritical_com_github_natanbc_timescale_natives_TimescaleLibrary_##_NAME
+    #define CRITICALNAME(_NAME) JavaCritical_com_github_natanbc_timescale_lavadsp_TimescaleLibrary_##_NAME
 #else
     #define CRITICAL_AVAILABLE false
-    #define CRITICALNAME(_NAME) FakeCritical_##_NAME
+    #define CRITICALNAME(_NAME) FakeCritical_com_github_natanbc_timescale_lavadsp_TimescaleLibrary_##_NAME
 #endif
 //see https://stackoverflow.com/questions/36298111/is-it-possible-to-use-sun-misc-unsafe-to-call-c-functions-without-jni/36309652#36309652
 //only really useful for methods manipulating arrays (https://github.com/jnr/jnr-ffi/issues/86#issuecomment-250325189)
@@ -31,11 +34,10 @@ extern "C" {
         return CRITICAL_AVAILABLE;
     }
 
-    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint channels, jint sampleRate, jdouble speedRate) {
+    METHOD(jlong, create)(JNIEnv* env, jobject thiz, jint channels, jint sampleRate) {
         auto st = new SoundTouch();
         st->setChannels((uint32_t)channels);
         st->setSampleRate((uint32_t)sampleRate);
-        st->setTempo(speedRate);
         st->clear();
         return (jlong)st;
     }
@@ -58,9 +60,9 @@ extern "C" {
         auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto w = (jint*)env->GetPrimitiveArrayCritical(written, nullptr);
         CRITICALNAME(process)(instance, 0, src, inputOffset, inputLength, 0, dest, outputOffset, outputLength, 0, w);
-        env->ReleasePrimitiveArrayCritical(input, src, JNI_ABORT);
-        env->ReleasePrimitiveArrayCritical(output, dest, JNI_COMMIT);
-        env->ReleasePrimitiveArrayCritical(written, w, JNI_COMMIT);
+        RELEASE_ARRAY(env, input, src);
+        RELEASE_ARRAY(env, output, dest);
+        RELEASE_ARRAY(env, written, w);
         return 0;
     }
 
@@ -72,7 +74,7 @@ extern "C" {
     METHOD(jint, read)(JNIEnv* env, jobject thiz, jlong instance, jfloatArray output, jint outputOffset, jint outputLength) {
         auto dest = (jfloat*)env->GetPrimitiveArrayCritical(output, nullptr);
         auto j = CRITICALNAME(read)(instance, 0, dest, outputOffset, outputLength);
-        env->ReleasePrimitiveArrayCritical(output, dest, JNI_COMMIT);
+        RELEASE_ARRAY(env, output, dest);
         return j;
     }
 

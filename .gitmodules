@@ -1,0 +1,3 @@
+[submodule "natives/vibrato/Vibrato-effect"]
+	path = natives/vibrato/Vibrato-effect
+	url = https://github.com/natanbc/Vibrato-effect

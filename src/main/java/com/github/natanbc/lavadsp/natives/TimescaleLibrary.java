@@ -1,4 +1,4 @@
-package com.github.natanbc.timescale.natives;
+package com.github.natanbc.lavadsp.natives;
 
 class TimescaleLibrary {
     static native String soundTouchVersion();
@@ -7,7 +7,7 @@ class TimescaleLibrary {
 
     static native boolean criticalMethodsAvailable();
 
-    static native long create(int channels, int sampleRate, double speedRate);
+    static native long create(int channels, int sampleRate);
 
     static native void setSpeed(long instance, double speed);
 
