@@ -55,24 +55,38 @@ public class DelegatedUniversalPcmAudioFilter implements UniversalPcmAudioFilter
      */
     protected static class NoopUniversalPcmAudioFilter implements UniversalPcmAudioFilter {
         @Override
-        public void process(float[][] input, int offset, int length) {}
+        public void process(float[][] input, int offset, int length) {
+            //noop
+        }
 
         @Override
-        public void process(short[] input, int offset, int length) {}
+        public void process(short[] input, int offset, int length) {
+            //noop
+        }
 
         @Override
-        public void process(ShortBuffer buffer) {}
+        public void process(ShortBuffer buffer) {
+            //noop
+        }
 
         @Override
-        public void process(short[][] input, int offset, int length) {}
+        public void process(short[][] input, int offset, int length) {
+            //noop
+        }
 
         @Override
-        public void seekPerformed(long requestedTime, long providedTime) {}
+        public void seekPerformed(long requestedTime, long providedTime) {
+            //noop
+        }
 
         @Override
-        public void flush() {}
+        public void flush() {
+            //noop
+        }
 
         @Override
-        public void close() {}
+        public void close() {
+            //noop
+        }
     }
 }

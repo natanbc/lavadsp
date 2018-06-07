@@ -54,10 +54,14 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
     }
 
     @Override
-    public void seekPerformed(long requestedTime, long providedTime) {}
+    public void seekPerformed(long requestedTime, long providedTime) {
+        //nothing to do here
+    }
 
     @Override
-    public void flush() {}
+    public void flush() {
+        //nothing to do here
+    }
 
     @Override
     public void close() {
