@@ -3,6 +3,9 @@ package com.github.natanbc.lavadsp.timescale;
 import com.github.natanbc.lavadsp.natives.TimescaleConverter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
+/**
+ * <a href="https://en.wikipedia.org/wiki/Audio_time_stretching_and_pitch_scaling">Time stretch and pitch scale</a> filter implementation.
+ */
 public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     private static final int BUFFER_SIZE = 4096;
 
@@ -45,12 +48,15 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * Sets the playback speed. This calls the SoundTouch setTempo function.
      *
      * @param speed Speed to play at. 1.0 means unchanged.
+     *
+     * @return {@code this}, for chaining calls.
      */
-    public void setSpeed(double speed) {
+    public TimescalePcmAudioFilter setSpeed(double speed) {
         for(TimescaleConverter converter : converters) {
             converter.setSpeed(speed);
         }
         this.speed = speed;
+        return this;
     }
 
     /**
@@ -58,9 +64,11 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * <br>This is equivalent to {@code setSpeed(1.0 + 0.01 * change)}
      *
      * @param change Percentage relative to the default speed to play at.
+     *
+     * @return {@code this}, for chaining calls.
      */
-    public void setSpeedChange(double change) {
-        setSpeed(1.0 + 0.01 * change);
+    public TimescalePcmAudioFilter setSpeedChange(double change) {
+        return setSpeed(1.0 + 0.01 * change);
     }
 
     /**
@@ -76,12 +84,15 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * Sets the audio pitch.
      *
      * @param pitch Pitch to set. 1.0 means unchanged.
+     *
+     * @return {@code this}, for chaining calls.
      */
-    public void setPitch(double pitch) {
+    public TimescalePcmAudioFilter setPitch(double pitch) {
         for(TimescaleConverter converter : converters) {
             converter.setPitch(pitch);
         }
         this.pitch = pitch;
+        return this;
     }
 
     /**
@@ -89,10 +100,12 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      *
      * @param pitch Octaves to set.
      *
+     * @return {@code this}, for chaining calls.
+     *
      * @see #setPitch(double)
      */
-    public void setPitchOctaves(double pitch) {
-        setPitch(Math.exp(0.69314718056 * Math.max(Math.min(pitch, 1.0), -1.0)));
+    public TimescalePcmAudioFilter setPitchOctaves(double pitch) {
+        return setPitch(Math.exp(0.69314718056 * Math.max(Math.min(pitch, 1.0), -1.0)));
     }
 
     /**
@@ -100,11 +113,13 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      *
      * @param pitch Semi tones to set.
      *
+     * @return {@code this}, for chaining calls.
+     *
      * @see #setPitch(double)
      * @see #setPitchOctaves(double)
      */
-    public void setPitchSemiTones(double pitch) {
-        setPitchOctaves(pitch / 12.0);
+    public TimescalePcmAudioFilter setPitchSemiTones(double pitch) {
+        return setPitchOctaves(pitch / 12.0);
     }
 
     /**
@@ -120,12 +135,15 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      * Sets the audio rate, in percentage, relative to the default.
      *
      * @param rate Rate to set. 1.0 means unchanged.
+     *
+     * @return {@code this}, for chaining calls.
      */
-    public void setRate(double rate) {
+    public TimescalePcmAudioFilter setRate(double rate) {
         for(TimescaleConverter converter : converters) {
             converter.setRate(rate);
         }
         this.rate = rate;
+        return this;
     }
 
     /**
@@ -134,10 +152,12 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      *
      * @param change Percentage relative to the default rate to play at.
      *
+     * @return {@code this}, for chaining calls.
+     *
      * @see #setRate(double)
      */
-    public void setRateChange(double change) {
-        setRate(1.0 + 0.01 * change);
+    public TimescalePcmAudioFilter setRateChange(double change) {
+        return setRate(1.0 + 0.01 * change);
     }
 
     /**

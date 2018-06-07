@@ -4,6 +4,11 @@ import com.github.natanbc.lavadsp.natives.TimescaleConverter;
 
 import java.util.Objects;
 
+/**
+ * Wrapper for a native library setting.
+ *
+ * @param <T> Type of this setting.
+ */
 public abstract class Setting<T> {
     /**
      * Enable/disable anti-alias filter in pitch transposer.
@@ -116,16 +121,41 @@ public abstract class Setting<T> {
         this.id = id;
     }
 
+    /**
+     * Returns the setting's name.
+     *
+     * @return The setting's name.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Returns the setting's native ID.
+     *
+     * @return The setting's native ID.
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * Returns the setting's current value.
+     *
+     * @param converter Converter to read the setting from.
+     *
+     * @return The current value of this setting.
+     */
     public abstract T get(TimescaleConverter converter);
 
+    /**
+     * Sets the setting's current value.
+     *
+     * @param converter Converter to set the setting on.
+     * @param value Value to set for the setting.
+     *
+     * @return {@code true} if the value was successfully updated.
+     */
     public abstract boolean set(TimescaleConverter converter, T value);
 
     @Override

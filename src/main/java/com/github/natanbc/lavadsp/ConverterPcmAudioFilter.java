@@ -3,8 +3,9 @@ package com.github.natanbc.lavadsp;
 import com.github.natanbc.lavadsp.natives.Converter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
+@SuppressWarnings("WeakerAccess")
 public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAudioFilter {
-    private static final int BUFFER_SIZE = 4096;
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
 
     private final T converter;
     private final FloatPcmAudioFilter downstream;
@@ -26,7 +27,7 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
     }
 
     public ConverterPcmAudioFilter(T converter, FloatPcmAudioFilter downstream, int channelCount) {
-        this(converter, downstream, channelCount, BUFFER_SIZE);
+        this(converter, downstream, channelCount, DEFAULT_BUFFER_SIZE);
     }
 
     public T getConverter() {
@@ -54,12 +55,12 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
 
     @Override
     public void seekPerformed(long requestedTime, long providedTime) {
-
+        //nothing to do here
     }
 
     @Override
-    public void flush() throws InterruptedException {
-
+    public void flush() {
+        //nothing to do here
     }
 
     @Override
