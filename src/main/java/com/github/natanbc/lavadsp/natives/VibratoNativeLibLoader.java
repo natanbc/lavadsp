@@ -25,7 +25,7 @@ public class VibratoNativeLibLoader {
     }
 
     public static float maxFrequency() {
-        loadVibratoLibrary();;
+        loadVibratoLibrary();
         return maxFrequency;
     }
 }

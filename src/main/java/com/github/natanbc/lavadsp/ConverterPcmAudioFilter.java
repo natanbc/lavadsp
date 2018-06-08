@@ -42,13 +42,14 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
             }
             downstream.process(input, 0, length);
         } else {
-            while(length > 0) {
-                int size = Math.min(length, bufferSize);
+            int l = length;
+            while(l > 0) {
+                int size = Math.min(l, bufferSize);
                 for(int i = 0; i < input.length; i++) {
                     converter.process(input[i], offset, outputSegments[i], 0, size);
                 }
                 downstream.process(outputSegments, 0, size);
-                length -= bufferSize;
+                l -= bufferSize;
             }
         }
     }
