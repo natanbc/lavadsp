@@ -70,6 +70,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task updateDocs(type: Copy) {
+    dependsOn javadoc
+    from "${buildDir}/docs/javadoc"
+    into "docs"
+}
+
 bintray {
     project.version = "${versionObj}"
     user = bintrayUsername
@@ -120,6 +126,7 @@ build {
     dependsOn javadocJar
     dependsOn sourcesJar
     dependsOn shadowJar
+    dependsOn updateDocs
 
     dependsOn test
 
