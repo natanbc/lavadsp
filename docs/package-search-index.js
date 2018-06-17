@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"com.github.natanbc.lavadsp"},{"l":"com.github.natanbc.lavadsp.chain"},{"l":"com.github.natanbc.lavadsp.distortion"},{"l":"com.github.natanbc.lavadsp.natives"},{"l":"com.github.natanbc.lavadsp.timescale"},{"l":"com.github.natanbc.lavadsp.tremolo"},{"l":"com.github.natanbc.lavadsp.vibrato"}]

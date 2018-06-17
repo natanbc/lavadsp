@@ -60,6 +60,16 @@ shadowJar {
     classifier = "withDependencies"
 }
 
+javadoc {
+    def dir = new File(System.getenv("JAVA_HOME"), "bin")
+    def file = new File(dir, "javadoc")
+    if(!file.isFile()) file = new File(dir, "javadoc.exe")
+    if(file.isFile()) {
+        executable = file.getAbsolutePath()
+        options.addBooleanOption('html5', true)
+    }
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from "${buildDir}/filteredSrc"
@@ -70,7 +80,12 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
+task cleanDocs(type: Delete) {
+    delete 'docs'
+}
+
 task updateDocs(type: Copy) {
+    dependsOn cleanDocs
     dependsOn javadoc
     from "${buildDir}/docs/javadoc"
     into "docs"
