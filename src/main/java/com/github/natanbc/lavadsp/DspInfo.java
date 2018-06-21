@@ -16,12 +16,34 @@
 
 package com.github.natanbc.lavadsp;
 
+/**
+ * Contains information about the library version.
+ */
+@SuppressWarnings("WeakerAccess")
 public final class DspInfo {
+    /**
+     * Library major version.
+     */
     public static final String VERSION_MAJOR;
+
+    /**
+     * Library minor version.
+     */
     public static final String VERSION_MINOR;
+
+    /**
+     * Library revision.
+     */
     public static final String VERSION_REVISION;
+
+    /**
+     * Latest commit hash as of build time.
+     */
     public static final String COMMIT_HASH;
 
+    /**
+     * Library version, in the format {@code MAJOR.MINOR.REVISION}.
+     */
     public static final String VERSION;
 
     static {

@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Consumer;
 
 /**
@@ -49,6 +50,20 @@ public class ChainedFilterBuilder implements PcmFilterFactory {
      * Map of the configurators to be called for created filters. Keys are the filter class.
      */
     protected final Map<Class<? extends AudioFilter>, List<Consumer<? extends AudioFilter>>> filterConfigurators = new HashMap<>();
+
+    /**
+     * Executor to run filter cleanup tasks in.
+     *
+     * @see UnlinkedChainedFilter#cleanupExecutor
+     */
+    protected volatile ScheduledExecutorService cleanupExecutor = null;
+
+    /**
+     * Delay before running cleaup tasks, in milliseconds.
+     *
+     * @see UnlinkedChainedFilter#cleanupDelayMs
+     */
+    protected volatile long cleanupDelayMs = UnlinkedChainedFilter.DEFAULT_CLEANUP_DELAY_MS;
 
     /**
      * Adds a configurator that gets called when a filter of the specified type is created.
@@ -104,6 +119,39 @@ public class ChainedFilterBuilder implements PcmFilterFactory {
     public ChainedFilterBuilder add(ChannelCountConstructor factory) {
         Objects.requireNonNull(factory, "Factory may not be null");
         return add((downstream, channelCount, sampleRate)->factory.create(downstream, channelCount));
+    }
+
+    /**
+     * Sets the executor used to run cleanup tasks.
+     *
+     * @param cleanupExecutor Executor to use.
+     *
+     * @return {@code this}, for chaining calls.
+     *
+     * @see UnlinkedChainedFilter#setCleanupExecutor(ScheduledExecutorService)
+     */
+    public synchronized ChainedFilterBuilder setCleanupExecutor(ScheduledExecutorService cleanupExecutor) {
+        this.cleanupExecutor = cleanupExecutor;
+        return this;
+    }
+
+    /**
+     * Sets the cleanup delay, in milliseconds. Small values (less than a few seconds) are not recommended
+     * and can lead to undefined behaviour.
+     *
+     * @param cleanupDelayMs Delay before running cleanup task.
+     *
+     * @return {@code this}, for chaining calls.
+     *
+     * @see UnlinkedChainedFilter#setCleanupDelay(long)
+     */
+    public synchronized ChainedFilterBuilder setCleanupDelay(long cleanupDelayMs) {
+        this.cleanupDelayMs = cleanupDelayMs;
+        return this;
+    }
+
+    public void setCleanupDelayMs(long cleanupDelayMs) {
+        this.cleanupDelayMs = cleanupDelayMs;
     }
 
     /**
@@ -172,7 +220,9 @@ public class ChainedFilterBuilder implements PcmFilterFactory {
                 throw new AssertionError("should not be reached", t);
             }
         }
-        return new UnlinkedChainedFilter(list, f, format, output);
+        return new UnlinkedChainedFilter(list, f, format, output)
+                .setCleanupDelay(cleanupDelayMs)
+                .setCleanupExecutor(cleanupExecutor);
     }
 
     /**

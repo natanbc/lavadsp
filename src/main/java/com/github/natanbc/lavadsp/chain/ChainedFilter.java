@@ -18,6 +18,8 @@ package com.github.natanbc.lavadsp.chain;
 
 import com.sedmelluq.discord.lavaplayer.filter.AudioFilter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +33,8 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("WeakerAccess")
 public class ChainedFilter implements FloatPcmAudioFilter {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChainedFilter.class);
+
     /**
      * All filters registered in the builder.
      */
@@ -157,7 +161,11 @@ public class ChainedFilter implements FloatPcmAudioFilter {
     @Override
     public void close() {
         for(AudioFilter filter : filters) {
-            filter.close();
+            try {
+                filter.close();
+            } catch(Throwable t) {
+                LOGGER.error("Error closing filter {}", filter, t);
+            }
         }
     }
 

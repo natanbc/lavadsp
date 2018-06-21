@@ -17,6 +17,7 @@
 package com.github.natanbc.lavadsp.timescale;
 
 import com.github.natanbc.lavadsp.natives.TimescaleConverter;
+import com.github.natanbc.lavadsp.util.DoubleToDoubleFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
@@ -76,6 +77,18 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
     }
 
     /**
+     * Updates the effect speed, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the speed.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public TimescalePcmAudioFilter updateFrequency(DoubleToDoubleFunction function) {
+        return setSpeed(function.apply(speed));
+    }
+
+    /**
      * Sets the playback speed, in percentage, relative to the default.
      * <br>This is equivalent to {@code setSpeed(1.0 + 0.01 * change)}
      *
@@ -109,6 +122,18 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
         }
         this.pitch = pitch;
         return this;
+    }
+
+    /**
+     * Updates the effect pitch, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the pitch.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public TimescalePcmAudioFilter updatePitch(DoubleToDoubleFunction function) {
+        return setPitch(function.apply(pitch));
     }
 
     /**
@@ -160,6 +185,18 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
         }
         this.rate = rate;
         return this;
+    }
+
+    /**
+     * Updates the effect rate, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the rate.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public TimescalePcmAudioFilter updateRate(DoubleToDoubleFunction function) {
+        return setRate(function.apply(rate));
     }
 
     /**

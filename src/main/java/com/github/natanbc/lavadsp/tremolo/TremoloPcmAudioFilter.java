@@ -18,6 +18,7 @@ package com.github.natanbc.lavadsp.tremolo;
 
 import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
 import com.github.natanbc.lavadsp.natives.TremoloConverter;
+import com.github.natanbc.lavadsp.util.DoubleToDoubleFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
@@ -56,6 +57,18 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
     }
 
     /**
+     * Updates the effect frequency, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the frequency.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public TremoloPcmAudioFilter updateFrequency(DoubleToDoubleFunction function) {
+        return setFrequency(function.apply(frequency));
+    }
+
+    /**
      * Returns the effect depth.
      *
      * @return The effect depth.
@@ -75,5 +88,17 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
         getConverter().setDepth(depth);
         this.depth = depth;
         return this;
+    }
+
+    /**
+     * Updates the effect depth, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the depth.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public TremoloPcmAudioFilter updateDepth(DoubleToDoubleFunction function) {
+        return setDepth(function.apply(depth));
     }
 }

@@ -18,6 +18,7 @@ package com.github.natanbc.lavadsp.vibrato;
 
 import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
 import com.github.natanbc.lavadsp.natives.VibratoConverter;
+import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
@@ -55,6 +56,18 @@ public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConver
     }
 
     /**
+     * Updates the effect frequency, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the frequency.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public VibratoPcmAudioFilter updateFrequency(FloatToFloatFunction function) {
+        return setFrequency(function.apply(frequency));
+    }
+
+    /**
      * Returns the effect depth.
      *
      * @return The effect depth.
@@ -74,5 +87,17 @@ public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConver
         getConverter().setDepth(depth);
         this.depth = depth;
         return this;
+    }
+
+    /**
+     * Updates the effect depth, using a function that accepts the current value
+     * and returns a new value.
+     *
+     * @param function Function used to map the depth.
+     *
+     * @return {@code this}, for chaining calls
+     */
+    public VibratoPcmAudioFilter updateDepth(FloatToFloatFunction function) {
+        return setDepth(function.apply(depth));
     }
 }
