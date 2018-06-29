@@ -18,8 +18,6 @@
 
 #include "jni.h"
 
-#include <inttypes.h>
-
 class Tremolo {
     public:
         Tremolo(jint sampleRate);

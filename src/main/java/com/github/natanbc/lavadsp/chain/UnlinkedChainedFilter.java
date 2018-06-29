@@ -142,7 +142,10 @@ public class UnlinkedChainedFilter extends ChainedFilter implements PcmFilterFac
     @Override
     public void close() {
         LOGGER.debug("Scheduling cleanup with delay of {} ms", cleanupDelayMs);
-        ScheduledFuture<?> future = cleanupExecutor().schedule(super::close, cleanupDelayMs, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> future = cleanupExecutor().schedule(()->{
+            LOGGER.debug("Releasing resources");
+            releaseResources();
+        }, cleanupDelayMs, TimeUnit.MILLISECONDS);
         if(!UPDATER.compareAndSet(this, null, future)) {
             LOGGER.debug("Cleanup already scheduled. Cancelling new task");
             future.cancel(true);
@@ -162,11 +165,19 @@ public class UnlinkedChainedFilter extends ChainedFilter implements PcmFilterFac
         return Collections.singletonList(this);
     }
 
+    /**
+     * Releases resources. After calling this method this filter will become invalid and cannot be reused.
+     */
+    protected void releaseResources() {
+        super.close();
+    }
+
     private void cancelCleanup() {
         ScheduledFuture<?> task = cleanupTask;
         if(task != null) {
             LOGGER.debug("Cancelling cleanup task");
             if(task.isDone() && !task.isCancelled()) {
+                LOGGER.debug("Done: {}, cancelled: {}", task.isDone(), task.isCancelled());
                 LOGGER.error("Filters have already been released");
                 throw new IllegalStateException("Filters have already been released");
             }

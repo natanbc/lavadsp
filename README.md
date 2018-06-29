@@ -8,6 +8,8 @@ A bunch of lavaplayer audio filters implemented with native code
 
 ### Installing
 
+Replace `VERSION` with the version you want to use. The latest version can be found in the badge above.
+
 #### Maven
 
 ```xml
