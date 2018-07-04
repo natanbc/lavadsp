@@ -84,7 +84,7 @@ public class TimescalePcmAudioFilter implements FloatPcmAudioFilter {
      *
      * @return {@code this}, for chaining calls
      */
-    public TimescalePcmAudioFilter updateFrequency(DoubleToDoubleFunction function) {
+    public TimescalePcmAudioFilter updateSpeed(DoubleToDoubleFunction function) {
         return setSpeed(function.apply(speed));
     }
 
