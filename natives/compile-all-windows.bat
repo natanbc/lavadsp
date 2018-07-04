@@ -13,7 +13,7 @@ for %%x in (%*) do (
 )
 
 setlocal enabledelayedexpansion
-for %%l in ("distortion", "timescale", "tremolo", "vibrato") do (
+for %%l in ("distortion", "timescale", "tremolo", "vibrato", "karaoke") do (
     echo Compiling %%l
     call %%l\compile > %%l.log
 )

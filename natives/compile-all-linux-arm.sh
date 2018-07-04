@@ -13,7 +13,7 @@ while [ "$1" != "" ]; do
     shift
 done
 
-declare -a arr=("distortion" "timescale" "tremolo" "vibrato")
+declare -a arr=("distortion" "timescale" "tremolo" "vibrato" "karaoke")
 
 for i in "${arr[@]}"
 do
