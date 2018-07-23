@@ -1,6 +1,6 @@
 #!/bin/bash
 
-deploy=0
+deploy=1
 cleanlogs=0
 
 while [ "$1" != "" ]; do
@@ -13,11 +13,11 @@ while [ "$1" != "" ]; do
     shift
 done
 
-declare -a arr=("distortion" "timescale" "tremolo" "vibrato" "karaoke")
+declare -a arr=("distortion" "timescale" "tremolo" "vibrato" "karaoke" "volume")
 
 for i in "${arr[@]}"
 do
-   $("${i}/compile-linux.sh" > "${i}.log")
+   $("${i}/compile-linux-x86-64.sh" > "${i}.log")
 done
 
 if [ $deploy == 1 ]; then
