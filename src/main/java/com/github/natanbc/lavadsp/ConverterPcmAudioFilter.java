@@ -23,10 +23,10 @@ import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAudioFilter {
     private static final int DEFAULT_BUFFER_SIZE = 4096;
 
-    private final T converter;
-    private final FloatPcmAudioFilter downstream;
-    private final float[][] outputSegments;
-    private final int bufferSize;
+    protected final T converter;
+    protected final FloatPcmAudioFilter downstream;
+    protected final float[][] outputSegments;
+    protected final int bufferSize;
 
     public ConverterPcmAudioFilter(T converter, FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
         this.converter = converter;
