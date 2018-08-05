@@ -1,6 +1,6 @@
 package com.github.natanbc.lavadsp.natives;
 
-public class VolumeLibrary {
+class VolumeLibrary {
     static native boolean criticalMethodsAvailable();
 
     static native long create();
