@@ -15,7 +15,7 @@
  */
 
 #include "jni.h"
-#include "karaoke.h"
+#include "karaoke-effect/karaoke.h"
 
 extern "C" {
 

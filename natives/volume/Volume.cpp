@@ -15,7 +15,7 @@
  */
 
 #include "jni.h"
-#include "volume.h"
+#include "volume-effect/volume.h"
 
 extern "C" {
 

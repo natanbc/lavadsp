@@ -27,7 +27,7 @@ Tremolo::Tremolo(jint sampleRate): sampleRate(sampleRate) {
 Tremolo::~Tremolo() {}
 
 void Tremolo::setDepth(jdouble depth) {
-    //we want [0, 0.5]
+    //we want (0, 0.5]
     this->depth = depth/2;
 }
 

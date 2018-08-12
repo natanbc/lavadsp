@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "BerVibrato.h"
+#include "vibrato-effect/BerVibrato/BerVibrato.h"
 
 #include "jni.h"
 

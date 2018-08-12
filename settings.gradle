@@ -1,2 +1,3 @@
 rootProject.name = 'lavadsp'
 
+include 'natives'

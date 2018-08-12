@@ -15,7 +15,7 @@
  */
 
 #include "jni.h"
-#include "distortion.h"
+#include "distortion-effect/distortion.h"
 
 extern "C" {
 

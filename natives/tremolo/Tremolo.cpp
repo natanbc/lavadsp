@@ -15,7 +15,7 @@
  */
 
 #include "jni.h"
-#include "tremolo.h"
+#include "tremolo-effect/tremolo.h"
 
 extern "C" {
 
