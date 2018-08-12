@@ -18,10 +18,15 @@ apply plugin: 'cpp'
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
+def ARCHITECTURE_REPLACEMENTS = [
+        amd64: "x64"
+]
+
 def BASE_JNI_INCLUDE_DIR = System.getenv('JAVA_HOME') + '/include'
 def OS_JNI_INCLUDE_DIR = BASE_JNI_INCLUDE_DIR + '/' + (Os.isFamily(Os.FAMILY_WINDOWS) ? 'win32' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux')
 def CURRENT_PLATFORM = Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux'
-def CURRENT_ARCH = System.properties['os.arch'].toLowerCase()
+def SYSTEM_ARCH = System.properties['os.arch'].toLowerCase()
+def CURRENT_ARCH = ARCHITECTURE_REPLACEMENTS.getOrDefault(SYSTEM_ARCH, SYSTEM_ARCH)
 
 model {
     platforms {
