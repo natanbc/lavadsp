@@ -22,6 +22,15 @@ def ARCHITECTURE_REPLACEMENTS = [
         amd64: "x64"
 ]
 
+def RESOURCES_LOCATION = [
+    x64_win: "win-x86-64",
+    x86_win: "win-x86",
+    x64_linux: "linux-x86-64",
+    x86_linux: "linux-x86",
+    arm_linux: "linux-arm",
+    x64_darwin: "darwin"
+]
+
 def BASE_JNI_INCLUDE_DIR = System.getenv('JAVA_HOME') + '/include'
 def OS_JNI_INCLUDE_DIR = BASE_JNI_INCLUDE_DIR + '/' + (Os.isFamily(Os.FAMILY_WINDOWS) ? 'win32' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux')
 def CURRENT_PLATFORM = Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux'
@@ -194,10 +203,49 @@ model {
     }
 }
 
-task buildAll {}
+task buildCurrentArch {}
+
+task buildWin64 {}
+task buildWin32 {}
+task buildLinux64 {}
+task buildLinux32 {}
+task buildLinuxArm {}
+task buildDarwin {}
+
+task buildWin {
+    dependsOn buildWin64, buildWin32
+}
+
+task buildLinux {
+    dependsOn buildLinux64, buildLinux32, buildLinuxArm
+}
 
 tasks.withType(LinkSharedLibrary) {
+    def file = it.binaryFile.asFile.orNull
+    def filename = file.getName()
+    def arch = RESOURCES_LOCATION.get(file.getParentFile().getName())
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
+    newPath.getParentFile().mkdirs()
+    it.binaryFile.set(newPath)
     if(it.name.toLowerCase().contains(CURRENT_ARCH + "_" + CURRENT_PLATFORM)) {
-        buildAll.dependsOn it
+        buildCurrentArch.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("x64_win")) {
+        buildWin64.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("x86_win")) {
+        buildWin32.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("x64_linux")) {
+        buildLinux64.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("x86_linux")) {
+        buildLinux32.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("arm_linux")) {
+        buildLinuxArm.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("x64_darwin")) {
+        buildDarwin.dependsOn it
     }
 }
