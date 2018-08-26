@@ -188,6 +188,18 @@ model {
         all {
             cppCompiler.args '-std=c++17'
             lib library: 'jni', linkage: 'api'
+
+            if(targetPlatform.architecture.name != "arm") {
+                if(toolChain in VisualCpp) {
+                    cppCompiler.args "/arch:AVX2", "/Ox"
+                } else if(toolChain in Gcc) {
+                    cppCompiler.args "-msse3", "-mavx2", "-O3"
+                }
+            } else {
+                if(toolChain in Gcc) {
+                    cppCompiler.args "-mthumb", "-O3"
+                }
+            }
         }
     }
 }
