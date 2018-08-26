@@ -90,10 +90,6 @@ model {
                     }
                 }
             }
-            binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
-            }
         }
         karaoke(NativeLibrarySpec) {
             targetPlatform "x86_win"
@@ -110,10 +106,6 @@ model {
                         include "**/*.cpp"
                     }
                 }
-            }
-            binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
             }
         }
         timescale(NativeLibrarySpec) {
@@ -133,8 +125,11 @@ model {
                 }
             }
             binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
+                if(targetPlatform.architecture.name == "x86") {
+                    if(targetPlatform.operatingSystem.name == "linux") {
+                        cppCompiler.args << "-DSOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS=1"
+                    }
+                }
             }
         }
         tremolo(NativeLibrarySpec) {
@@ -153,10 +148,6 @@ model {
                     }
                 }
             }
-            binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
-            }
         }
         vibrato(NativeLibrarySpec) {
             targetPlatform "x86_win"
@@ -173,10 +164,6 @@ model {
                         include "**/*.cpp"
                     }
                 }
-            }
-            binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
             }
         }
         volume(NativeLibrarySpec) {
@@ -195,10 +182,12 @@ model {
                     }
                 }
             }
-            binaries.all {
-                cppCompiler.args '-std=c++17'
-                lib library: 'jni', linkage: 'api'
-            }
+        }
+    }
+    binaries {
+        all {
+            cppCompiler.args '-std=c++17'
+            lib library: 'jni', linkage: 'api'
         }
     }
 }
