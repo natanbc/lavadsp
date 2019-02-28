@@ -1,9 +1,8 @@
 plugins {
-    id 'com.jfrog.bintray' version '1.7.2'
+    id 'com.jfrog.bintray' version '1.8.4'
     id 'java'
     id 'maven'
     id 'maven-publish'
-    id 'com.github.ben-manes.versions' version '0.13.0'
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
@@ -91,10 +90,28 @@ task updateDocs(type: Copy) {
     into "docs"
 }
 
+publishing {
+    publications {
+        BintrayRelease(MavenPublication) {
+            from components.java
+            groupId group
+            artifactId archivesBaseName
+
+            artifact sourcesJar {
+                classifier 'sources'
+            }
+
+            artifact javadocJar {
+                classifier 'javadoc'
+            }
+        }
+    }
+}
+
 bintray {
-    project.version = "${versionObj}"
-    user = bintrayUsername
-    key = bintrayApiKey
+    version = "${versionObj}"
+    user = getProjectProperty("bintrayUsername")
+    key = getProjectProperty("bintrayApiKey")
     publications = ["BintrayRelease"]
     pkg {
         repo = 'maven'
@@ -103,21 +120,8 @@ bintray {
         vcsUrl = 'https://github.com/natanbc/lavadsp.git'
         publish = true
         version {
-            name = project.version
+            name = project.version.toString()
             released = new Date()
-        }
-    }
-}
-
-publishing {
-    publications {
-        BintrayRelease(MavenPublication) {
-            from components.java
-            groupId group
-            artifactId archivesBaseName
-            version version
-            artifact javadocJar
-            artifact sourcesJar
         }
     }
 }
