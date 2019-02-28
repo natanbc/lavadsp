@@ -16,7 +16,7 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
+import com.sedmelluq.lava.common.natives.NativeResourceHolder;
 
 public class DistortionConverter extends NativeResourceHolder implements Converter {
     public static final int SIN = DistortionLibrary.FUNCTION_SIN;

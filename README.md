@@ -74,40 +74,4 @@ player.setFilterFactory((track, format, output)->{
 });
 ```
 
-However, this gets complicated as more filters are added,
-so the recommended way to chain filters is using a [ChainedFilter](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/chain/ChainedFilter.html):
-
-```java
-AudioPlayer player = manager.createPlayer();
-
-ChainedFilterBuilder builder = new ChainedFilterBuilder();
-
-builder.add(TimescalePcmAudioFilter::new);
-builder.add(TremoloPcmAudioFilter::new);
-builder.addConfigurator(TremoloPcmAudioFilter.class, filter->filter.setDepth(0.75));
-builder.addConfigurator(TimescalePcmAudioFilter.class, filter->filter.setSpeed(1.5));
-
-player.setFilterFactory(builder);
-```
-
-If you plan on changing configuration after the filter chain
-has been created, you can use an [UnlinkedChainedFilter](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/chain/UnlinkedChainedFilter.html):
-
-```java
-AudioPlayer player = manager.createPlayer();
-
-ChainedFilterBuilder builder = new ChainedFilterBuilder();
-
-builder.add(TimescalePcmAudioFilter::new);
-builder.add(TremoloPcmAudioFilter::new);
-builder.addConfigurator(TremoloPcmAudioFilter.class, filter->filter.setDepth(0.75));
-builder.addConfigurator(TimescalePcmAudioFilter.class, filter->filter.setSpeed(1.5));
-UnlinkedChainedFilter filter = builder.buildUnlinked(manager.getConfiguration().getOutputFormat());
-
-player.setFilterFactory(filter);
-
-//some time later
-
-filter.configure(TimescalePcmAudioFilter.class, f->f.setSpeed(0.5));
-filter.configure(TremoloPcmAudioFilter.class, f->f.setDepth(0.25));
-```
+An alternative is using lavaplayer's FilterChainBuilder class. An example usage can be found [here](https://github.com/natanbc/andesite-node/blob/dc59e2243346de77975d2b9e2c5d6a52f0eb729c/api/src/main/java/andesite/node/player/filter/FilterChainConfiguration.java#L179-L194)

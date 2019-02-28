@@ -1,7 +1,7 @@
 package com.github.natanbc.lavadsp.natives;
 
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
+import com.sedmelluq.lava.common.natives.NativeResourceHolder;
 
 public class VolumeConverter extends NativeResourceHolder implements Converter {
     private final long instance;

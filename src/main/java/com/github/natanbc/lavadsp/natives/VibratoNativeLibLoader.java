@@ -16,16 +16,17 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeLibLoader;
+import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
 
 public class VibratoNativeLibLoader {
+    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(VibratoNativeLibLoader.class, "vibrato");
     private static volatile boolean loaded = false;
     private static volatile boolean criticalNativesAvailable;
     private static volatile float maxFrequency;
 
     public static void loadVibratoLibrary() {
         if(loaded) return;
-        NativeLibLoader.load(VibratoNativeLibLoader.class, "vibrato");
+        LOADER.load();
         criticalNativesAvailable = VibratoLibrary.criticalMethodsAvailable();
         maxFrequency = VibratoLibrary.maxFrequency();
         loaded = true;

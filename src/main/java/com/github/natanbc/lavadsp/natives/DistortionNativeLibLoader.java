@@ -16,16 +16,17 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeLibLoader;
+import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
 
 public class DistortionNativeLibLoader {
+    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(DistortionNativeLibLoader.class, "distortion");
     private static volatile boolean loaded = false;
     private static volatile boolean criticalNativesAvailable;
     private static volatile int allFunctions;
 
     public static void loadDistortionLibrary() {
         if(loaded) return;
-        NativeLibLoader.load(DistortionNativeLibLoader.class, "distortion");
+        LOADER.load();
         criticalNativesAvailable = DistortionLibrary.criticalMethodsAvailable();
         allFunctions = DistortionLibrary.allFunctions();
         loaded = true;

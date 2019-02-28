@@ -16,9 +16,10 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeLibLoader;
+import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
 
 public class TimescaleNativeLibLoader {
+    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(TimescaleNativeLibLoader.class, "timescale");
     private static volatile boolean loaded = false;
     private static volatile String soundTouchVersion;
     private static volatile int soundTouchVersionID;
@@ -26,7 +27,7 @@ public class TimescaleNativeLibLoader {
 
     public static void loadTimescaleLibrary() {
         if(loaded) return;
-        NativeLibLoader.load(TimescaleNativeLibLoader.class, "timescale");
+        LOADER.load();
         soundTouchVersion = TimescaleLibrary.soundTouchVersion();
         soundTouchVersionID = TimescaleLibrary.soundTouchVersionID();
         criticalNativesAvailable = TimescaleLibrary.criticalMethodsAvailable();

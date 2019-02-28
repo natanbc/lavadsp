@@ -16,7 +16,7 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeResourceHolder;
+import com.sedmelluq.lava.common.natives.NativeResourceHolder;
 
 public class TimescaleConverter extends NativeResourceHolder {
     private final int[] buffer = new int[1];

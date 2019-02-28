@@ -16,15 +16,16 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeLibLoader;
+import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
 
 public class TremoloNativeLibLoader {
+    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(TremoloNativeLibLoader.class, "tremolo");
     private static volatile boolean loaded = false;
     private static volatile boolean criticalNativesAvailable;
 
     public static void loadTremoloLibrary() {
         if(loaded) return;
-        NativeLibLoader.load(TremoloNativeLibLoader.class, "tremolo");
+        LOADER.load();
         criticalNativesAvailable = TremoloLibrary.criticalMethodsAvailable();
         loaded = true;
     }

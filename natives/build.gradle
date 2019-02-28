@@ -222,12 +222,12 @@ task buildLinux {
 }
 
 tasks.withType(LinkSharedLibrary) {
-    def file = it.binaryFile.asFile.orNull
+    def file = it.linkedFile.asFile.orNull
     def filename = file.getName()
     def arch = RESOURCES_LOCATION.get(file.getParentFile().getName())
     def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
-    it.binaryFile.set(newPath)
+    it.linkedFile.set(newPath)
     if(it.name.toLowerCase().contains(CURRENT_ARCH + "_" + CURRENT_PLATFORM)) {
         buildCurrentArch.dependsOn it
     }

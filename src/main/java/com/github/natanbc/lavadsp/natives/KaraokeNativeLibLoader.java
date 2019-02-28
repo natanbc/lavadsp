@@ -16,15 +16,16 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.discord.lavaplayer.natives.NativeLibLoader;
+import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
 
 public class KaraokeNativeLibLoader {
+    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(KaraokeNativeLibLoader.class, "karaoke");
     private static volatile boolean loaded = false;
     private static volatile boolean criticalNativesAvailable;
 
     public static void loadKaraokeLibrary() {
         if(loaded) return;
-        NativeLibLoader.load(KaraokeNativeLibLoader.class, "karaoke");
+        LOADER.load();
         criticalNativesAvailable = KaraokeLibrary.criticalMethodsAvailable();
         loaded = true;
     }
