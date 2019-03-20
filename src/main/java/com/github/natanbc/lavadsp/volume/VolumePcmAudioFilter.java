@@ -1,15 +1,14 @@
 package com.github.natanbc.lavadsp.volume;
 
 import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
-import com.github.natanbc.lavadsp.natives.VolumeConverter;
-import com.github.natanbc.lavadsp.util.DoubleToDoubleFunction;
+import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
  * Updates the effect volume, with a multiplier ranging from 0 to 5.
  */
 public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverter> {
-    private volatile double volume = 1.0f;
+    private volatile float volume = 1.0f;
 
     public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
         super(new VolumeConverter(), downstream, channelCount, bufferSize);
@@ -24,7 +23,7 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
      *
      * @return The current volume.
      */
-    public double getVolume() {
+    public float getVolume() {
         return volume;
     }
 
@@ -35,7 +34,7 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
      *
      * @return {@code this}, for chaining calls.
      */
-    public VolumePcmAudioFilter setVolume(double volume) {
+    public VolumePcmAudioFilter setVolume(float volume) {
         getConverter().setVolume(volume);
         this.volume = volume;
         return this;
@@ -49,7 +48,7 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
      *
      * @return {@code this}, for chaining calls
      */
-    public VolumePcmAudioFilter updateVolume(DoubleToDoubleFunction function) {
+    public VolumePcmAudioFilter updateVolume(FloatToFloatFunction function) {
         return setVolume(function.apply(volume));
     }
 

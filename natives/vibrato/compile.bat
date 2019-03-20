@@ -1,1 +1,0 @@
-cl /Ox /LD /EHsc /Fe:vibrato.dll /I "%JAVA_HOME%\include\win32" /I "%JAVA_HOME%\include" /I %~dp0\Vibrato-effect\BerVibrato %~dp0\*.cpp %~dp0\Vibrato-effect\BerVibrato\*.cpp

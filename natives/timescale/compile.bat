@@ -1,1 +1,0 @@
-cl /Ox /LD /EHsc /Fe:timescale.dll /I "%JAVA_HOME%\include\win32" /I "%JAVA_HOME%\include" %~dp0\*.cpp %~dp0\soundtouch\*.cpp

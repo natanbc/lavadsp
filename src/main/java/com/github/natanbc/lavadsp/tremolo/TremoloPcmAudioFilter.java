@@ -17,20 +17,19 @@
 package com.github.natanbc.lavadsp.tremolo;
 
 import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
-import com.github.natanbc.lavadsp.natives.TremoloConverter;
-import com.github.natanbc.lavadsp.util.DoubleToDoubleFunction;
+import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
  * <a href="https://en.wikipedia.org/wiki/Tremolo">Tremolo</a> filter implementation.
  */
 public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConverter> {
-    private volatile double frequency = 2f;
-    private volatile double depth = 0.5f;
+    private volatile float frequency = 2f;
+    private volatile float depth = 0.5f;
 
     public TremoloPcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int sampleRate) {
         super(new TremoloConverter(sampleRate), downstream, channelCount);
-        setDepth(0.5);
+        setDepth(0.5f);
         setFrequency(4);
     }
 
@@ -39,7 +38,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return The effect frequency.
      */
-    public double getFrequency() {
+    public float getFrequency() {
         return frequency;
     }
 
@@ -50,7 +49,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return {@code this}, for chaining calls.
      */
-    public TremoloPcmAudioFilter setFrequency(double frequency) {
+    public TremoloPcmAudioFilter setFrequency(float frequency) {
         getConverter().setFrequency(frequency);
         this.frequency = frequency;
         return this;
@@ -64,7 +63,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return {@code this}, for chaining calls
      */
-    public TremoloPcmAudioFilter updateFrequency(DoubleToDoubleFunction function) {
+    public TremoloPcmAudioFilter updateFrequency(FloatToFloatFunction function) {
         return setFrequency(function.apply(frequency));
     }
 
@@ -73,7 +72,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return The effect depth.
      */
-    public double getDepth() {
+    public float getDepth() {
         return depth;
     }
 
@@ -84,7 +83,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return {@code this}, for chaining calls.
      */
-    public TremoloPcmAudioFilter setDepth(double depth) {
+    public TremoloPcmAudioFilter setDepth(float depth) {
         getConverter().setDepth(depth);
         this.depth = depth;
         return this;
@@ -98,7 +97,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      *
      * @return {@code this}, for chaining calls
      */
-    public TremoloPcmAudioFilter updateDepth(DoubleToDoubleFunction function) {
+    public TremoloPcmAudioFilter updateDepth(FloatToFloatFunction function) {
         return setDepth(function.apply(depth));
     }
 }

@@ -16,7 +16,6 @@
 
 package com.github.natanbc.lavadsp.karaoke;
 
-import com.github.natanbc.lavadsp.natives.KaraokeConverter;
 import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
@@ -204,8 +203,6 @@ public class KaraokePcmAudioFilter implements FloatPcmAudioFilter {
 
     @Override
     public void close() {
-        if(converter != null) {
-            converter.close();
-        }
+        //nothing to do here
     }
 }

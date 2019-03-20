@@ -17,7 +17,6 @@
 package com.github.natanbc.lavadsp.vibrato;
 
 import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
-import com.github.natanbc.lavadsp.natives.VibratoConverter;
 import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 

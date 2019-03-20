@@ -23,12 +23,13 @@ def ARCHITECTURE_REPLACEMENTS = [
 ]
 
 def RESOURCES_LOCATION = [
-    x64_win: "win-x86-64",
-    x86_win: "win-x86",
-    x64_linux: "linux-x86-64",
-    x86_linux: "linux-x86",
-    arm_linux: "linux-arm",
-    x64_darwin: "darwin"
+        x64_win: "win-x86-64",
+        x86_win: "win-x86",
+        x64_linux: "linux-x86-64",
+        x86_linux: "linux-x86",
+        arm_linux: "linux-arm",
+        aarch64_linux: "linux-aarch64",
+        x64_darwin: "darwin"
 ]
 
 def BASE_JNI_INCLUDE_DIR = System.getenv('JAVA_HOME') + '/include'
@@ -38,6 +39,33 @@ def SYSTEM_ARCH = System.properties['os.arch'].toLowerCase()
 def CURRENT_ARCH = ARCHITECTURE_REPLACEMENTS.getOrDefault(SYSTEM_ARCH, SYSTEM_ARCH)
 
 model {
+    flavors {
+        normal
+        avx2
+    }
+    toolChains {
+        gcc(Gcc){
+            target("arm_linux") {
+                cCompiler.executable 'arm-linux-gnueabihf-' + cCompiler.executable
+                cppCompiler.executable 'arm-linux-gnueabihf-' + cppCompiler.executable
+                linker.executable 'arm-linux-gnueabihf-' + linker.executable
+            }
+            target("aarch64_linux") {
+                cCompiler.executable 'aarch64-linux-gnu-' + cCompiler.executable
+                cppCompiler.executable 'aarch64-linux-gnu-' + cppCompiler.executable
+                linker.executable 'aarch64-linux-gnu-' + linker.executable
+            }
+            target("x64_darwin") {
+                cCompiler.executable 'x86_64-apple-darwin15-' + cCompiler.executable
+                cppCompiler.executable 'x86_64-apple-darwin15-' + cppCompiler.executable
+                linker.executable 'x86_64-apple-darwin15-' + linker.executable
+                linker.withArguments { args ->
+                    args.remove '-Wl,-soname,libtimescale.so'
+                    args << '-Wl,-install_name,libtimescale.so'
+                }
+            }
+        }
+    }
     platforms {
         x86_win {
             architecture "x86"
@@ -63,6 +91,10 @@ model {
             architecture "arm"
             operatingSystem "linux"
         }
+        aarch64_linux {
+            architecture "arm64"
+            operatingSystem "linux"
+        }
     }
     repositories {
         libs(PrebuiltLibraries) {
@@ -73,41 +105,6 @@ model {
     }
     //noinspection GroovyAssignabilityCheck
     components {
-        distortion(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            sources {
-                cpp {
-                    source {
-                        srcDir "distortion"
-                        include "**/*.h"
-                        include "**/*.c"
-                        include "**/*.cpp"
-                    }
-                }
-            }
-        }
-        karaoke(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            sources {
-                cpp {
-                    source {
-                        srcDir "karaoke"
-                        include "**/*.c"
-                        include "**/*.cpp"
-                    }
-                }
-            }
-        }
         timescale(NativeLibrarySpec) {
             targetPlatform "x86_win"
             targetPlatform "x86_linux"
@@ -115,6 +112,7 @@ model {
             targetPlatform "x64_linux"
             targetPlatform "x64_darwin"
             targetPlatform "arm_linux"
+            targetPlatform "aarch64_linux"
             sources {
                 cpp {
                     source {
@@ -132,73 +130,34 @@ model {
                 }
             }
         }
-        tremolo(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            sources {
-                cpp {
-                    source {
-                        srcDir "tremolo"
-                        include "**/*.c"
-                        include "**/*.cpp"
-                    }
-                }
-            }
-        }
-        vibrato(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            sources {
-                cpp {
-                    source {
-                        srcDir "vibrato"
-                        include "**/*.c"
-                        include "**/*.cpp"
-                    }
-                }
-            }
-        }
-        volume(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            sources {
-                cpp {
-                    source {
-                        srcDir "volume"
-                        include "**/*.c"
-                        include "**/*.cpp"
-                    }
-                }
-            }
-        }
     }
     binaries {
         all {
             cppCompiler.args '-std=c++17'
             lib library: 'jni', linkage: 'api'
 
-            if(targetPlatform.architecture.name != "arm") {
-                if(toolChain in VisualCpp) {
-                    cppCompiler.args "/arch:AVX2", "/Ox"
-                } else if(toolChain in Gcc) {
-                    cppCompiler.args "-msse3", "-mavx2", "-O3"
-                }
-            } else {
-                if(toolChain in Gcc) {
-                    cppCompiler.args "-mthumb", "-O3"
-                }
+            if(toolChain in Gcc) {
+                cppCompiler.args "-O3"
+            } else if(toolChain in VisualCpp) {
+                cppCompiler.args "/Ox"
+            }
+
+            switch(targetPlatform.architecture.name) {
+                case "x86":
+                case "x64":
+                    if(flavor == flavors.avx2) {
+                        if(toolChain in VisualCpp) {
+                            cppCompiler.args "/arch:AVX2"
+                        } else if(toolChain in Gcc) {
+                            cppCompiler.args "-mavx2"
+                        }
+                    }
+                    break
+                case "arm":
+                    if(toolChain in Gcc) {
+                        cppCompiler.args "-mthumb"
+                    }
+                    break
             }
         }
     }
@@ -211,6 +170,7 @@ task buildWin32 {}
 task buildLinux64 {}
 task buildLinux32 {}
 task buildLinuxArm {}
+task buildLinuxAarch64 {}
 task buildDarwin {}
 
 task buildWin {
@@ -218,13 +178,21 @@ task buildWin {
 }
 
 task buildLinux {
-    dependsOn buildLinux64, buildLinux32, buildLinuxArm
+    dependsOn buildLinux64, buildLinux32, buildLinuxArm, buildLinuxAarch64
 }
 
 tasks.withType(LinkSharedLibrary) {
     def file = it.linkedFile.asFile.orNull
     def filename = file.getName()
-    def arch = RESOURCES_LOCATION.get(file.getParentFile().getName())
+    def flavor = file.getParentFile().getName()
+    def arch = RESOURCES_LOCATION.get(file.getParentFile().getParentFile().getName())
+    if(flavor == "avx2") {
+        if(!arch.contains("x86") && arch != "darwin") {
+            return 
+        }
+        def baseName = filename.substring(0, filename.lastIndexOf('.'))
+        filename = baseName + "-avx2" + filename.substring(filename.lastIndexOf('.'))
+    }
     def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
     it.linkedFile.set(newPath)
@@ -245,6 +213,9 @@ tasks.withType(LinkSharedLibrary) {
     }
     if(it.name.toLowerCase().contains("arm_linux")) {
         buildLinuxArm.dependsOn it
+    }
+    if(it.name.toLowerCase().contains("aarch64_linux")) {
+        buildLinuxAarch64.dependsOn it
     }
     if(it.name.toLowerCase().contains("x64_darwin")) {
         buildDarwin.dependsOn it

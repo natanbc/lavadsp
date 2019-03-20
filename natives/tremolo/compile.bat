@@ -1,1 +1,0 @@
-cl /Ox /LD /EHsc /Fe:tremolo.dll /I "%JAVA_HOME%\include\win32" /I "%JAVA_HOME%\include" /I"%~dp0\tremolo-effect" %~dp0\*.cpp %~dp0\tremolo-effect\*.cpp

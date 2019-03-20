@@ -16,10 +16,12 @@
 
 package com.github.natanbc.lavadsp.natives;
 
-import com.sedmelluq.lava.common.natives.NativeLibraryLoader;
+import com.github.natanbc.nativeloader.NativeLibLoader;
+import com.github.natanbc.nativeloader.feature.X86Feature;
 
 public class TimescaleNativeLibLoader {
-    private static final NativeLibraryLoader LOADER = NativeLibraryLoader.create(TimescaleNativeLibLoader.class, "timescale");
+    private static final NativeLibLoader LOADER = NativeLibLoader.create(TimescaleNativeLibLoader.class, "timescale")
+            .withFeature(X86Feature.AVX2);
     private static volatile boolean loaded = false;
     private static volatile String soundTouchVersion;
     private static volatile int soundTouchVersionID;

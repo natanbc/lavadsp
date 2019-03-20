@@ -16,7 +16,6 @@
 
 package com.github.natanbc.lavadsp;
 
-import com.github.natanbc.lavadsp.natives.Converter;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 @SuppressWarnings("WeakerAccess")
