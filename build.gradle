@@ -6,7 +6,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
-def versionObj = new Version(major: 0, minor: 5, revision: 1)
+def versionObj = new Version(major: 0, minor: 5, revision: 2)
 
 group 'com.github.natanbc'
 version "${versionObj}"
