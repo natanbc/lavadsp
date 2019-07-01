@@ -3,7 +3,7 @@ plugins {
     id 'java-library'
     id 'maven'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
 }
 
 def versionObj = new Version(major: 0, minor: 5, revision: 2)
