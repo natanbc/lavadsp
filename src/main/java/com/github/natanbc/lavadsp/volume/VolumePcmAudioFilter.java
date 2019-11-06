@@ -55,7 +55,7 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
     @Override
     public void process(float[][] input, int offset, int length) throws InterruptedException {
         //don't call the native library if volume is (close to) 1.0
-        if(volume - 1.0 < 0.01) {
+        if(Math.abs(1.0 - volume) < 0.02) {
             downstream.process(input, offset, length);
             return;
         }
