@@ -31,6 +31,11 @@ public class TimescaleConverter extends NativeResourceHolder {
         }
         TimescaleNativeLibLoader.loadTimescaleLibrary();
         this.instance = TimescaleLibrary.create(channels, sampleRate);
+        // https://github.com/natanbc/lavadsp/issues/52
+        // looking at the source code, this is enough to trigger a call to
+        // SoundTouch::calcEffectiveRateAndTempo, which sets the output to
+        // pRateTransposer
+        setRate(1.0);
     }
 
     public void reset() {

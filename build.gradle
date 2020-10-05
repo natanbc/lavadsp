@@ -6,7 +6,7 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '2.0.1'
 }
 
-def versionObj = new Version(major: 0, minor: 5, revision: 2)
+def versionObj = new Version(major: 0, minor: 6, revision: 0)
 
 group 'com.github.natanbc'
 version "${versionObj}"
@@ -22,7 +22,7 @@ repositories {
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.25'
-    implementation 'com.github.natanbc:native-loader:0.1.0'
+    implementation 'com.github.natanbc:native-loader:0.4.0'
     compileOnly 'com.sedmelluq:lavaplayer:1.3.10'
     testCompile 'com.sedmelluq:lavaplayer:1.3.10'
     testCompile 'ch.qos.logback:logback-classic:1.2.3'
@@ -62,7 +62,7 @@ shadowJar {
 }
 
 javadoc {
-    def dir = new File(System.getenv("JAVA_HOME"), "bin")
+    def dir = new File(System.getProperty("java.home"), "bin")
     def file = new File(dir, "javadoc")
     if(!file.isFile()) file = new File(dir, "javadoc.exe")
     if(file.isFile()) {
