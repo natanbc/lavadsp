@@ -14,29 +14,28 @@
  * limitations under the License.
  */
 
-apply plugin: 'cpp'
+plugins {
+    id 'cpp'
+    id 'c'
+}
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
-def ARCHITECTURE_REPLACEMENTS = [
-        amd64: "x64"
-]
-
 def RESOURCES_LOCATION = [
-        x64_win: "win-x86-64",
-        x86_win: "win-x86",
-        x64_linux: "linux-x86-64",
-        x86_linux: "linux-x86",
-        arm_linux: "linux-arm",
-        aarch64_linux: "linux-aarch64",
-        x64_darwin: "darwin"
+        darwin_x86_64: "darwin",
+        freebsd_x86_64: "freebsd-x86-64",
+        linux_glibc_x86: "linux-x86",
+        linux_glibc_x86_64: "linux-x86-64",
+        linux_glibc_arm: "linux-arm",
+        linux_glibc_aarch64: "linux-aarch64",
+        linux_musl_x86_64: "linux-musl-x86-64",
+        linux_musl_aarch64: "linux-musl-aarch64",
+        windows_x86: "win-x86",
+        windows_x86_64: "win-x86-64",
 ]
 
-def BASE_JNI_INCLUDE_DIR = System.getenv('JAVA_HOME') + '/include'
+def BASE_JNI_INCLUDE_DIR = System.getProperty("java.home") + '/include'
 def OS_JNI_INCLUDE_DIR = BASE_JNI_INCLUDE_DIR + '/' + (Os.isFamily(Os.FAMILY_WINDOWS) ? 'win32' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux')
-def CURRENT_PLATFORM = Os.isFamily(Os.FAMILY_WINDOWS) ? 'win' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux'
-def SYSTEM_ARCH = System.properties['os.arch'].toLowerCase()
-def CURRENT_ARCH = ARCHITECTURE_REPLACEMENTS.getOrDefault(SYSTEM_ARCH, SYSTEM_ARCH)
 
 model {
     flavors {
@@ -44,57 +43,108 @@ model {
         avx2
     }
     toolChains {
-        visualCpp(VisualCpp) {}
-        gcc(Gcc){
-            target("arm_linux") {
-                cCompiler.executable 'arm-linux-gnueabihf-' + cCompiler.executable
-                cppCompiler.executable 'arm-linux-gnueabihf-' + cppCompiler.executable
-                linker.executable 'arm-linux-gnueabihf-' + linker.executable
-            }
-            target("aarch64_linux") {
-                cCompiler.executable 'aarch64-linux-gnu-' + cCompiler.executable
-                cppCompiler.executable 'aarch64-linux-gnu-' + cppCompiler.executable
-                linker.executable 'aarch64-linux-gnu-' + linker.executable
-            }
-            target("x64_darwin") {
-                cCompiler.executable 'x86_64-apple-darwin15-' + cCompiler.executable
-                cppCompiler.executable 'x86_64-apple-darwin15-' + cppCompiler.executable
-                linker.executable 'x86_64-apple-darwin15-' + linker.executable
+        visualCpp(VisualCpp)
+        clang(Clang) {
+            target("darwin_x86_64") {
+                cCompiler.executable 'x86_64-apple-darwin15-clang'
+                cppCompiler.executable 'x86_64-apple-darwin15-clang++-libc++'
+                linker.executable 'x86_64-apple-darwin15-clang++-libc++'
                 linker.withArguments { args ->
                     args.remove '-Wl,-soname,libtimescale.so'
-                    args << '-Wl,-install_name,libtimescale.so'
+                    args << '-Wl,-install_name,libtimescale.dylib'
+                }
+            }
+        }
+        glibc(Gcc) {
+            target("linux_glibc_arm") {
+                cCompiler.executable 'arm-linux-gnueabihf-gcc'
+                cppCompiler.executable 'arm-linux-gnueabihf-g++'
+                linker.executable 'arm-linux-gnueabihf-g++'
+            }
+            target("linux_glibc_aarch64") {
+                cCompiler.executable 'aarch64-linux-gnu-gcc'
+                cppCompiler.executable 'aarch64-linux-gnu-g++'
+                linker.executable 'aarch64-linux-gnu-g++'
+            }
+        }
+        musl(Gcc) {
+            target("linux_musl_x86_64") {
+                cCompiler.executable 'x86_64-linux-musl-gcc'
+                cppCompiler.executable 'x86_64-linux-musl-g++'
+                linker.executable 'x86_64-linux-musl-g++'
+
+                cCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                cppCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                linker.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+            }
+            target("linux_musl_aarch64") {
+                cCompiler.executable 'aarch64-linux-musl-gcc'
+                cppCompiler.executable 'aarch64-linux-musl-g++'
+                linker.executable 'aarch64-linux-musl-g++'
+
+                cCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                cppCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                linker.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+            }
+        }
+        freebsd(Clang) {
+            target("freebsd_x86_64") {
+                def sysroot = new File(rootProject.projectDir, 'freebsd_sysroot').getAbsolutePath()
+                cCompiler.executable = 'clang'
+                cppCompiler.executable = 'clang++'
+                linker.executable = 'clang++'
+                cCompiler.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
+                }
+                cppCompiler.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
+                }
+                linker.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
                 }
             }
         }
     }
     platforms {
-        x86_win {
-            architecture "x86"
-            operatingSystem "windows"
-        }
-        x86_linux {
-            architecture "x86"
-            operatingSystem "linux"
-        }
-        x64_win {
-            architecture "x86_64"
-            operatingSystem "windows"
-        }
-        x64_linux {
-            architecture "x86_64"
-            operatingSystem "linux"
-        }
-        x64_darwin {
+        darwin_x86_64 {
             architecture "x86_64"
             operatingSystem "mac"
         }
-        arm_linux {
+        freebsd_x86_64 {
+            architecture "x86_64"
+            operatingSystem "freebsd"
+        }
+        linux_glibc_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_glibc_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
+        linux_glibc_arm {
             architecture "arm"
             operatingSystem "linux"
         }
-        aarch64_linux {
+        linux_glibc_aarch64 {
             architecture "arm64"
             operatingSystem "linux"
+        }
+        linux_musl_x86_64 {
+            architecture "x64_64"
+            operatingSystem "linux"
+        }
+        linux_musl_aarch64 {
+            architecture "arm64"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
         }
     }
     repositories {
@@ -107,13 +157,16 @@ model {
     //noinspection GroovyAssignabilityCheck
     components {
         timescale(NativeLibrarySpec) {
-            targetPlatform "x86_win"
-            targetPlatform "x86_linux"
-            targetPlatform "x64_win"
-            targetPlatform "x64_linux"
-            targetPlatform "x64_darwin"
-            targetPlatform "arm_linux"
-            targetPlatform "aarch64_linux"
+            targetPlatform "darwin_x86_64"
+            targetPlatform "freebsd_x86_64"
+            targetPlatform "linux_glibc_x86"
+            targetPlatform "linux_glibc_x86_64"
+            targetPlatform "linux_glibc_arm"
+            targetPlatform "linux_glibc_aarch64"
+            targetPlatform "linux_musl_x86_64"
+            targetPlatform "linux_musl_aarch64"
+            targetPlatform "windows_x86"
+            targetPlatform "windows_x86_64"
             sources {
                 cpp {
                     source {
@@ -126,7 +179,7 @@ model {
             binaries.all {
                 if(targetPlatform.architecture.name == "x86") {
                     if(targetPlatform.operatingSystem.name == "linux") {
-                        cppCompiler.args << "-DSOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS=1"
+                        cppCompiler.define "SOUNDTOUCH_DISABLE_X86_OPTIMIZATIONS"
                     }
                 }
             }
@@ -134,52 +187,61 @@ model {
     }
     binaries {
         all {
-            cppCompiler.args '-std=c++17'
             lib library: 'jni', linkage: 'api'
 
-            if(toolChain in Gcc) {
-                cppCompiler.args "-O3"
-            } else if(toolChain in VisualCpp) {
-                cppCompiler.args "/Ox"
+            if(toolChain in VisualCpp) {
+                cppCompiler.define "ST_NO_EXCEPTION_HANDLING"
+                cppCompiler.args << '/std:c++17' << "/Ox"
+                cCompiler.args << "/Ox"
+            } else if(toolChain in Gcc || toolChain in Clang) {
+                cppCompiler.define "ST_NO_EXCEPTION_HANDLING"
+                cppCompiler.args << '-std=c++17' << '-O3' << '-fno-exceptions' << '-fno-rtti'
+                cCompiler.args << "-O3"
             }
-
             switch(targetPlatform.architecture.name) {
-                case "x86":
-                case "x64":
+                case "x86-64":
                     if(flavor == flavors.avx2) {
                         if(toolChain in VisualCpp) {
-                            cppCompiler.args "/arch:AVX2"
-                        } else if(toolChain in Gcc) {
-                            cppCompiler.args "-mavx2"
+                            cCompiler.args << "/arch:AVX2"
+                            cppCompiler.args << "/arch:AVX2"
+                        } else if(toolChain in Gcc || toolChain in Clang) {
+                            cCompiler.args << "-mavx2"
+                            cppCompiler.args << "-mavx2"
                         }
                     }
                     break
-                case "arm":
-                    if(toolChain in Gcc) {
-                        cppCompiler.args "-mthumb"
-                    }
-                    break
+            //todo arm vectorization
             }
         }
     }
 }
 
-task buildCurrentArch {}
-
-task buildWin64 {}
+task buildDarwin64 {}
+task buildFreebsd64 {}
+task buildLinuxGlibc32 {}
+task buildLinuxGlibc64 {}
+task buildLinuxGlibcArm {}
+task buildLinuxGlibcAarch64 {}
+task buildLinuxMusl64 {}
+task buildLinuxMuslAarch64 {}
 task buildWin32 {}
-task buildLinux64 {}
-task buildLinux32 {}
-task buildLinuxArm {}
-task buildLinuxAarch64 {}
-task buildDarwin {}
+task buildWin64 {}
+
+task buildDarwin {
+    dependsOn buildDarwin64
+}
+
+task buildFreebsd {
+    dependsOn buildFreebsd64
+}
 
 task buildWin {
     dependsOn buildWin64, buildWin32
 }
 
 task buildLinux {
-    dependsOn buildLinux64, buildLinux32, buildLinuxArm, buildLinuxAarch64
+    dependsOn buildLinuxGlibc64, buildLinuxGlibc32, buildLinuxGlibcArm,
+            buildLinuxGlibcAarch64, buildLinuxMusl64
 }
 
 tasks.withType(LinkSharedLibrary) {
@@ -189,7 +251,7 @@ tasks.withType(LinkSharedLibrary) {
     def arch = RESOURCES_LOCATION.get(file.getParentFile().getParentFile().getName())
     if(flavor == "avx2") {
         if(!arch.contains("x86") && arch != "darwin") {
-            return 
+            return
         }
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
         filename = baseName + "-avx2" + filename.substring(filename.lastIndexOf('.'))
@@ -197,28 +259,35 @@ tasks.withType(LinkSharedLibrary) {
     def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
     it.linkedFile.set(newPath)
-    if(it.name.toLowerCase().contains(CURRENT_ARCH + "_" + CURRENT_PLATFORM)) {
-        buildCurrentArch.dependsOn it
+    def name = it.name.toLowerCase()
+    if(name.contains("darwin_x86_64")) {
+        buildDarwin64.dependsOn it
     }
-    if(it.name.toLowerCase().contains("x64_win")) {
-        buildWin64.dependsOn it
+    if(name.contains("freebsd_x86_64")) {
+        buildFreebsd64.dependsOn it
     }
-    if(it.name.toLowerCase().contains("x86_win")) {
+    if(name.contains("linux_glibc_x86")) {
+        buildLinuxGlibc32.dependsOn it
+    }
+    if(name.contains("linux_glibc_x86_64")) {
+        buildLinuxGlibc64.dependsOn it
+    }
+    if(name.contains("linux_glibc_arm")) {
+        buildLinuxGlibcArm.dependsOn it
+    }
+    if(name.contains("linux_glibc_aarch64")) {
+        buildLinuxGlibcAarch64.dependsOn it
+    }
+    if(name.contains("linux_musl_x86_64")) {
+        buildLinuxMusl64.dependsOn it
+    }
+    if(name.contains("linux_musl_aarch64")) {
+        buildLinuxMuslAarch64.dependsOn it
+    }
+    if(name.contains("windows_x86")) {
         buildWin32.dependsOn it
     }
-    if(it.name.toLowerCase().contains("x64_linux")) {
-        buildLinux64.dependsOn it
-    }
-    if(it.name.toLowerCase().contains("x86_linux")) {
-        buildLinux32.dependsOn it
-    }
-    if(it.name.toLowerCase().contains("arm_linux")) {
-        buildLinuxArm.dependsOn it
-    }
-    if(it.name.toLowerCase().contains("aarch64_linux")) {
-        buildLinuxAarch64.dependsOn it
-    }
-    if(it.name.toLowerCase().contains("x64_darwin")) {
-        buildDarwin.dependsOn it
+    if(name.contains("windows_x86_64")) {
+        buildWin64.dependsOn it
     }
 }

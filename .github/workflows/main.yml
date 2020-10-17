@@ -1,0 +1,146 @@
+name: CI
+
+on:
+  push:
+    branches: '*'
+    tags: '*'
+  pull_request:
+
+jobs:
+  linux-mac-freebsd-natives:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Cache natives
+        uses: actions/cache@v2
+        id: cache-natives
+        with:
+          path: |
+            src/main/resources/natives/darwin
+            src/main/resources/natives/freebsd-x86-64
+            src/main/resources/natives/linux-x86
+            src/main/resources/natives/linux-x86-64
+            src/main/resources/natives/linux-musl-x86-64
+            src/main/resources/natives/linux-arm
+            src/main/resources/natives/linux-aarch64
+            src/main/resources/natives/linux-musl-aarch64
+          key: linux-mac-freebsd-${{ hashFiles('natives/**') }}
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        with:
+          java-version: 15
+      - name: Install x86 compilers
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          sudo apt update
+          sudo apt install libc6-dev-i386 linux-libc-dev g++-multilib
+          curl -sL https://github.com/natanbc/actions-binaries/releases/download/1/x86_64-linux-musl-cross.tgz -o - | tar xzf -
+      - name: Build x86 natives
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          chmod +x gradlew
+          export PATH="$PATH:$(pwd)/x86_64-linux-musl-cross/bin"
+          ./gradlew buildLinuxGlibc32 buildLinuxGlibc64 buildLinuxMusl64
+      - name: Install ARM compilers
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          # installing these two breaks i386 compilation
+          # https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1300211
+          sudo apt install g++-arm-linux-gnueabihf
+          sudo apt install g++-aarch64-linux-gnu
+          curl -sL https://github.com/natanbc/actions-binaries/releases/download/1/aarch64-linux-musl-cross.tgz -o - | tar xzf -
+      - name: Build ARM natives
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          chmod +x gradlew
+          export PATH="$PATH:$(pwd)/aarch64-linux-musl-cross/bin"
+          ./gradlew buildLinuxGlibcArm buildLinuxGlibcAarch64 buildLinuxMuslAarch64
+      - name: Install darwin compiler
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          curl -sL https://github.com/natanbc/actions-binaries/releases/download/1/osxcross.tar.gz -o - | tar -xzf -
+      - name: Build darwin natives
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          chmod +x gradlew
+          export PATH="$PATH:$(pwd)/osxcross/bin"
+          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/osxcross/lib"
+          ./gradlew buildDarwin64
+      - name: Install freebsd compiler
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+            mkdir freebsd_sysroot
+            curl -s https://download.freebsd.org/ftp/releases/amd64/11.4-RELEASE/base.txz \
+                | tar -xJf - -C freebsd_sysroot ./lib ./usr/lib ./usr/libdata ./usr/include ./usr/share/keys ./etc
+      - name: Build freebsd natives
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          chmod +x gradlew
+          ./gradlew buildFreebsd64
+      - uses: actions/upload-artifact@v2
+        with:
+          name: linux-mac-freebsd-natives
+          path: src/main/resources/natives/*
+  windows-natives:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Cache natives
+        uses: actions/cache@v2
+        id: cache-natives
+        with:
+          path: |
+            src/main/resources/natives/win-x86
+            src/main/resources/natives/win-x86-64
+          key: win-${{ hashFiles('natives/**') }}
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        with:
+          java-version: 15
+      - name: Build natives
+        if: steps.cache-natives.outputs.cache-hit != 'true'
+        run: |
+          .\gradlew.bat buildWin
+      - uses: actions/upload-artifact@v2
+        with:
+          name: windows-natives
+          path: src/main/resources/natives/*
+  build:
+    needs: [windows-natives, linux-mac-freebsd-natives]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: mkdir -p src/main/resources/natives
+      - uses: actions/download-artifact@v2
+        with:
+          name: linux-mac-freebsd-natives
+          path: src/main/resources/natives/
+      - uses: actions/download-artifact@v2
+        with:
+          name: windows-natives
+          path: src/main/resources/natives/
+      - name: Compile java
+        run: |
+          chmod +x gradlew
+          # this builds the java code without building the natives
+          ./gradlew publishToMavenLocal
+      - uses: actions/upload-artifact@v2
+        with:
+          name: jar
+          path: build/libs/*.jar
+      - name: Bintray upload
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          export TAG="$(echo $GITHUB_REF | grep -q refs/tags && echo ${GITHUB_REF/refs\/tags\/} || echo '')"
+          if [ "$TAG" != "" ]; then
+            ./gradlew bintrayUpload
+          fi
+        env:
+          BINTRAY_USERNAME: ${{ secrets.BINTRAY_USERNAME }}
+          BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
