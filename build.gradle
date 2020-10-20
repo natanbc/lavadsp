@@ -107,9 +107,11 @@ bintray {
 }
 
 String getProjectProperty(String propertyName) {
-    String property = ""
+    String property
     if(hasProperty(propertyName)) {
         property = project.properties[propertyName]
+    } else {
+        property = System.getenv(propertyName) ?: ""
     }
     return property
 }
