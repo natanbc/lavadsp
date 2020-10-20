@@ -1,12 +1,12 @@
 plugins {
-    id 'com.jfrog.bintray' version '1.8.4'
     id 'java-library'
     id 'maven'
     id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '2.0.1'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.jfrog.bintray' version '1.8.5'
 }
 
-def versionObj = new Version(major: 0, minor: 7, revision: 0)
+def versionObj = new Version(major: 0, minor: 7, revision: 1)
 
 group 'com.github.natanbc'
 version "${versionObj}"
@@ -59,16 +59,6 @@ shadowJar {
     classifier = "withDependencies"
 }
 
-javadoc {
-    def dir = new File(System.getProperty("java.home"), "bin")
-    def file = new File(dir, "javadoc")
-    if(!file.isFile()) file = new File(dir, "javadoc.exe")
-    if(file.isFile()) {
-        executable = file.getAbsolutePath()
-        options.addBooleanOption('html5', true)
-    }
-}
-
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from "${buildDir}/filteredSrc"
@@ -79,16 +69,6 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-task cleanDocs(type: Delete) {
-    delete 'docs'
-}
-
-task updateDocs(type: Copy) {
-    dependsOn cleanDocs
-    dependsOn javadoc
-    from "${buildDir}/docs/javadoc"
-    into "docs"
-}
 
 publishing {
     publications {
@@ -134,24 +114,8 @@ String getProjectProperty(String propertyName) {
     return property
 }
 
-build {
-    dependsOn clean
-    dependsOn jar
-    dependsOn javadocJar
-    dependsOn sourcesJar
-    dependsOn shadowJar
-    dependsOn updateDocs
-
-    dependsOn test
-
-    jar.mustRunAfter clean
-    javadocJar.mustRunAfter jar
-    sourcesJar.mustRunAfter javadocJar
-    shadowJar.mustRunAfter sourcesJar
-}
-
 bintrayUpload {
-    dependsOn build
+    dependsOn shadowJar
 
     onlyIf { !getProjectProperty("BINTRAY_USERNAME").empty }
     onlyIf { !getProjectProperty("BINTRAY_API_KEY").empty }
