@@ -1,0 +1,249 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+task buildDarwin64 {}
+task buildFreebsd64 {}
+task buildLinuxGlibc32 {}
+task buildLinuxGlibc64 {}
+task buildLinuxGlibcArm {}
+task buildLinuxGlibcAarch64 {}
+task buildLinuxMusl64 {}
+task buildLinuxMuslAarch64 {}
+task buildWin32 {}
+task buildWin64 {}
+
+task buildDarwin {
+    dependsOn buildDarwin64
+}
+
+task buildFreebsd {
+    dependsOn buildFreebsd64
+}
+
+task buildWin {
+    dependsOn buildWin64, buildWin32
+}
+
+task buildLinux {
+    dependsOn buildLinuxGlibc64, buildLinuxGlibc32, buildLinuxGlibcArm,
+            buildLinuxGlibcAarch64, buildLinuxMusl64
+}
+
+static def platformName(p) {
+    if(p instanceof String) {
+        return p
+    }
+    return p.name
+}
+
+def targetDirectory = [
+        darwin_x86_64: "darwin",
+        freebsd_x86_64: "freebsd-x86-64",
+        linux_glibc_x86: "linux-x86",
+        linux_glibc_x86_64: "linux-x86-64",
+        linux_glibc_arm: "linux-arm",
+        linux_glibc_aarch64: "linux-aarch64",
+        linux_musl_x86_64: "linux-musl-x86-64",
+        linux_musl_aarch64: "linux-musl-aarch64",
+        windows_x86: "win-x86",
+        windows_x86_64: "win-x86-64",
+]
+
+project.ext.targetDirectoryName = { platform ->
+    def r = targetDirectory[platformName(platform)]
+    if(r == null) {
+        throw new Exception("Invalid target '${platform}'")
+    }
+    return r
+}
+
+def tasksByTarget = [
+        darwin_x86_64:       buildDarwin64,
+        freebsd_x86_64:      buildFreebsd64,
+        linux_glibc_x86:     buildLinuxGlibc32,
+        linux_glibc_x86_64:  buildLinuxGlibc64,
+        linux_glibc_arm:     buildLinuxGlibcArm,
+        linux_glibc_aarch64: buildLinuxGlibcAarch64,
+        linux_musl_x86_64:   buildLinuxMusl64,
+        linux_musl_aarch64:  buildLinuxMuslAarch64,
+        windows_x86:         buildWin32,
+        windows_x86_64:      buildWin64
+]
+
+project.ext.taskForTarget = { platform ->
+    def t = tasksByTarget[platformName(platform)]
+    if(t == null) {
+        throw new Exception("Invalid target '${platform}'")
+    }
+    return t
+}
+
+project.ext.targets = tasksByTarget.keySet()
+
+project.ext.isDarwin = { platform ->
+    return platformName(platform).startsWith("darwin_")
+}
+project.ext.isFreebsd = { platform ->
+    return platformName(platform).startsWith("freebsd_")
+}
+project.ext.isLinux = { platform ->
+    return platformName(platform).startsWith("linux_")
+}
+project.ext.isWindows = { platform ->
+    return platformName(platform).startsWith("windows_")
+}
+project.ext.isUnix = { platform ->
+    return isDarwin(platform) || isFreebsd(platform) || isLinux(platform)
+}
+project.ext.isMusl = { platform ->
+    return platformName(platform).startsWith("linux_musl_")
+}
+
+project.ext.isX86 = { platform ->
+    def arch = platformName(platform)
+    return arch.endsWith("x86") || arch.endsWith("x86_64")
+}
+project.ext.isX86_32 = { platform ->
+    return platformName(platform).endsWith("x86")
+}
+project.ext.isX86_64 = { platform ->
+    return platformName(platform).endsWith("x86_64")
+}
+project.ext.isArm = { platform ->
+    def arch = platformName(platform)
+    return arch.endsWith("arm") || arch.endsWith("aarch64")
+}
+project.ext.isArm32 = { platform ->
+    return platformName(platform).endsWith("arm")
+}
+project.ext.isArm64 = { platform ->
+    return platformName(platform).endsWith("aarch64")
+}
+
+def base_jni_include = System.getProperty("java.home") + '/include'
+def os_jni_include = base_jni_include + '/' + (Os.isFamily(Os.FAMILY_WINDOWS) ? 'win32' : Os.isFamily(Os.FAMILY_MAC) ? 'darwin' : 'linux')
+def freebsd_sysroot = new File(rootProject.projectDir, 'freebsd_sysroot')
+
+model {
+    toolChains {
+        visualCpp(VisualCpp)
+        clang(Clang) {
+            target("darwin_x86_64") {
+                cCompiler.executable 'x86_64-apple-darwin15-clang'
+                cppCompiler.executable 'x86_64-apple-darwin15-clang++-libc++'
+                linker.executable 'x86_64-apple-darwin15-clang++-libc++'
+                linker.withArguments { args ->
+                    args.removeIf { it.startsWith("-Wl,-soname") }
+                }
+                staticLibArchiver.executable 'x86_64-apple-darwin15-ar'
+            }
+        }
+        glibc(Gcc) {
+            target("linux_glibc_arm") {
+                cCompiler.executable 'arm-linux-gnueabihf-gcc'
+                cppCompiler.executable 'arm-linux-gnueabihf-g++'
+                linker.executable 'arm-linux-gnueabihf-g++'
+                staticLibArchiver.executable 'arm-linux-gnueabihf-ar'
+            }
+            target("linux_glibc_aarch64") {
+                cCompiler.executable 'aarch64-linux-gnu-gcc'
+                cppCompiler.executable 'aarch64-linux-gnu-g++'
+                linker.executable 'aarch64-linux-gnu-g++'
+                staticLibArchiver.executable 'aarch64-linux-gnu-ar'
+            }
+        }
+        musl(Gcc) {
+            target("linux_musl_x86_64") {
+                cCompiler.executable 'x86_64-linux-musl-gcc'
+                cppCompiler.executable 'x86_64-linux-musl-g++'
+                linker.executable 'x86_64-linux-musl-g++'
+                staticLibArchiver.executable 'x86_64-linux-musl-ar'
+
+                cCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                cppCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                linker.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+            }
+            target("linux_musl_aarch64") {
+                cCompiler.executable 'aarch64-linux-musl-gcc'
+                cppCompiler.executable 'aarch64-linux-musl-g++'
+                linker.executable 'aarch64-linux-musl-g++'
+                staticLibArchiver.executable 'aarch64-linux-musl-ar'
+
+                cCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                cppCompiler.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+                linker.withArguments { args -> args << '-static-libgcc' << '-static-libstdc++' }
+            }
+        }
+        freebsd(Clang) {
+            target("freebsd_x86_64") {
+                def sysroot = freebsd_sysroot.getAbsolutePath()
+                cCompiler.executable = 'clang'
+                cppCompiler.executable = 'clang++'
+                linker.executable = 'clang++'
+                staticLibArchiver.executable 'llvm-ar'
+
+                cCompiler.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
+                }
+                cppCompiler.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
+                }
+                linker.withArguments { args ->
+                    args << "--sysroot=$sysroot" << "--target=x86_64-unknown-freebsd11"
+                }
+            }
+        }
+    }
+    platforms {
+        darwin_x86_64 {
+            architecture "x86_64"
+            operatingSystem "mac"
+        }
+        freebsd_x86_64 {
+            architecture "x86_64"
+            operatingSystem "freebsd"
+        }
+        linux_glibc_x86 {
+            architecture "x86"
+            operatingSystem "linux"
+        }
+        linux_glibc_x86_64 {
+            architecture "x86_64"
+            operatingSystem "linux"
+        }
+        linux_glibc_arm {
+            architecture "arm"
+            operatingSystem "linux"
+        }
+        linux_glibc_aarch64 {
+            architecture "arm64"
+            operatingSystem "linux"
+        }
+        linux_musl_x86_64 {
+            architecture "x64_64"
+            operatingSystem "linux"
+        }
+        linux_musl_aarch64 {
+            architecture "arm64"
+            operatingSystem "linux"
+        }
+        windows_x86 {
+            architecture "x86"
+            operatingSystem "windows"
+        }
+        windows_x86_64 {
+            architecture "x86_64"
+            operatingSystem "windows"
+        }
+    }
+    repositories {
+        libs(PrebuiltLibraries) {
+            jni {
+                headers.srcDirs base_jni_include, os_jni_include
+            }
+            freebsd_headers {
+                headers.srcDirs new File(freebsd_sysroot, "usr/include"),
+                        new File(freebsd_sysroot, "usr/include/x86")
+            }
+        }
+    }
+}
