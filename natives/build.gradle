@@ -91,7 +91,7 @@ tasks.withType(LinkSharedLibrary) {
         filename = filename.replace(".so", ".dylib")
     }
     if(flavor == "avx2") {
-        if(!arch.contains("x86")) {
+        if(!isX86(it.targetPlatform.get())) {
             return
         }
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
