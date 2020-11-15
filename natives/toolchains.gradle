@@ -97,6 +97,9 @@ project.ext.isUnix = { platform ->
 project.ext.isMusl = { platform ->
     return platformName(platform).startsWith("linux_musl_")
 }
+project.ext.isGlibc = { platform ->
+    return platformName(platform).startsWith("linux_glibc_")
+}
 
 project.ext.isX86 = { platform ->
     def arch = platformName(platform)

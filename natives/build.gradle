@@ -77,6 +77,16 @@ model {
             if(isFreebsd(targetPlatform)) {
                 lib library: 'freebsd_headers', linkage: 'api'
             }
+            if(isGlibc(targetPlatform)) {
+                def base = project.projectDir.toString()
+                def suffix = isX86_64(targetPlatform) ? "x86-64"
+                            : isX86_32(targetPlatform) ? "x86" : null
+                if(suffix != null) {
+                    def path = new File(project.projectDir, "glibc/force_link_glibc_2.22_${suffix}.h").getAbsolutePath()
+                    cCompiler.args << "-include" << path
+                    cppCompiler.args << "-include" << path
+                }
+            }
         }
     }
 }
