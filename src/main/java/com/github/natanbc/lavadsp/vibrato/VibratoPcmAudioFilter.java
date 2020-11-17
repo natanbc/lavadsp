@@ -22,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
  * <a href="https://en.wikipedia.org/wiki/Vibrato">Vibrato</a> filter implementation.
+ *
+ * Ported from <a href="https://github.com/Bershov/Vibrato-effect">BerVibrato</a>
  */
 public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConverter> {
     //values taken from BerVibrato.h

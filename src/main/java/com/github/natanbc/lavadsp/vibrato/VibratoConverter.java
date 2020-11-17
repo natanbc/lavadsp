@@ -49,7 +49,7 @@ public class VibratoConverter implements Converter {
     public void process(float[] input, int inputOffset, float[] output, int outputOffset, int samples) {
         for(int i = 0; i < samples; i++) {
             float lfoValue = lfo.getValue();
-            float maxDelay = BASE_DELAY_SEC * sampleRate;
+            int maxDelay = (int)(BASE_DELAY_SEC * sampleRate);
     
             float delay = lfoValue * depth * maxDelay + ADDITIONAL_DELAY;
     
@@ -69,15 +69,12 @@ public class VibratoConverter implements Converter {
         }
         
         float getValue() {
-            float dp = (float)(2 * Math.PI * frequency / sampleRate); // phase step
-    
-            float value = (float)Math.sin(phase);
-            value = (value + 1f) * 0.5f; // transform from [-1; 1] to [0; 1]
-    
+            float dp = 2 * (float)Math.PI * frequency / sampleRate;
+            float value = (float)((Math.sin(phase) + 1) * 0.5);
             phase += dp;
-            while(phase > 2 * Math.PI)
+            while(phase > 2 * Math.PI) {
                 phase -= 2 * Math.PI;
-    
+            }
             return value;
         }
     }
@@ -85,20 +82,20 @@ public class VibratoConverter implements Converter {
     private static class RingBuffer {
         private static final int INTERPOLATOR_MARGIN = 3;
         
-        private final FloatBuffer buffer;
+        private final float[] buffer;
         private final int size;
         private int writeIndex;
         
         RingBuffer(int size) {
-            this.buffer = FloatBuffer.allocate(size + INTERPOLATOR_MARGIN);
+            this.buffer = new float[size + INTERPOLATOR_MARGIN];
             this.size = size;
         }
         
         void writeMargined(float sample) {
-            buffer.put(writeIndex, sample);
+            buffer[writeIndex] = sample;
     
             if(writeIndex < INTERPOLATOR_MARGIN) {
-                buffer.put(size + writeIndex, sample);
+                buffer[size + writeIndex] = sample;
             }
     
             writeIndex++;
@@ -109,21 +106,35 @@ public class VibratoConverter implements Converter {
     
         float getHermiteAt(float delay) {
             float fReadIndex = writeIndex - 1 - delay;
-            while(fReadIndex < 0)
-                fReadIndex += buffer.capacity();
-            while(fReadIndex >= buffer.capacity())
-                fReadIndex -= buffer.capacity();
+            while(fReadIndex < 0) {
+                fReadIndex += size;
+            }
+            while(fReadIndex >= size) {
+                fReadIndex -= size;
+            }
         
             int iPart = (int)fReadIndex; // integer part of the delay
             float fPart = fReadIndex - iPart; // fractional part of the delay
     
-            // Hermite polynomial interpolation
-            // 4-point, 3rd-order Hermite (x-form)
-            float c0 = buffer.get(iPart + 1);
-            float c1 = 0.5f * (buffer.get(iPart + 2) - buffer.get(iPart));
-            float c2 = (buffer.get(iPart) - 2.5f * buffer.get(iPart + 1)) + (2.0f*buffer.get(iPart + 2) - 0.5f * buffer.get(iPart + 3));
-            float c3 = 0.5f * (buffer.get(iPart + 3) - buffer.get(iPart)) + 1.5f * (buffer.get(iPart + 1) - buffer.get(iPart + 2));
-            return ((c3 * fPart + c2) * fPart + c1) * fPart + c0;
+            return getSampleHermite4p3o(fPart, buffer, iPart);
+        }
+        
+        // Hermite polynomial interpolation
+        // 4-point, 3rd-order Hermite (x-form)
+        private static float getSampleHermite4p3o(float x, float[] buffer, int offset) {
+            float y0 = buffer[offset];
+            float y1 = buffer[offset + 1];
+            float y2 = buffer[offset + 2];
+            float y3 = buffer[offset + 3];
+        
+            //c0 = y[1];
+            //c1 = (1.0/2.0)*(y[2]-y[0]);
+            float c1 = (1f / 2f) * (y2 - y0);
+            //c2 = (y[0] - (5.0/2.0)*y[1]) + (2.0*y[2] - (1.0/2.0)*y[3]);
+            float c2 = (y0 - (5f / 2f) * y1) + (2f * y2 - (1f / 2f) * y3);
+            //c3 = (1.0/2.0)*(y[3]-y[0]) + (3.0/2.0)*(y[1]-y[2]);
+            float c3 = (1f / 2f) * (y3 - y0) + (3f / 2f) * (y1 - y2);
+            return ((c3 * x + c2) * x + c1) * x + y1;
         }
     }
 }
