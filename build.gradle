@@ -6,7 +6,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.5'
 }
 
-def versionObj = new Version(major: 0, minor: 7, revision: 3)
+def versionObj = new Version(major: 0, minor: 7, revision: 4)
 
 group 'com.github.natanbc'
 version "${versionObj}"
