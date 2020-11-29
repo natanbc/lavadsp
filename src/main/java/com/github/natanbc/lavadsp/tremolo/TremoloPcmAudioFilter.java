@@ -28,7 +28,7 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
     private volatile float depth = 0.5f;
 
     public TremoloPcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int sampleRate) {
-        super(new TremoloConverter(sampleRate), downstream, channelCount);
+        super(() -> new TremoloConverter(sampleRate), downstream, channelCount);
         setDepth(0.5f);
         setFrequency(4);
     }
@@ -50,7 +50,9 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      * @return {@code this}, for chaining calls.
      */
     public TremoloPcmAudioFilter setFrequency(float frequency) {
-        getConverter().setFrequency(frequency);
+        for(TremoloConverter converter : converters()) {
+            converter.setFrequency(frequency);
+        }
         this.frequency = frequency;
         return this;
     }
@@ -84,7 +86,9 @@ public class TremoloPcmAudioFilter extends ConverterPcmAudioFilter<TremoloConver
      * @return {@code this}, for chaining calls.
      */
     public TremoloPcmAudioFilter setDepth(float depth) {
-        getConverter().setDepth(depth);
+        for(TremoloConverter converter : converters()) {
+            converter.setDepth(depth);
+        }
         this.depth = depth;
         return this;
     }

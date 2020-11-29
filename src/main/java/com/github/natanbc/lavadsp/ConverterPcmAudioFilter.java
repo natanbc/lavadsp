@@ -18,17 +18,26 @@ package com.github.natanbc.lavadsp;
 
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+
 @SuppressWarnings("WeakerAccess")
 public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAudioFilter {
     private static final int DEFAULT_BUFFER_SIZE = 4096;
 
-    protected final T converter;
+    protected final List<T> converters;
     protected final FloatPcmAudioFilter downstream;
     protected final float[][] outputSegments;
     protected final int bufferSize;
 
-    public ConverterPcmAudioFilter(T converter, FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
-        this.converter = converter;
+    public ConverterPcmAudioFilter(Supplier<T> converterFactory, FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
+        List<T> converters = new ArrayList<>(channelCount);
+        for(int i = 0; i < channelCount; i++) {
+            converters.add(converterFactory.get());
+        }
+        this.converters = Collections.unmodifiableList(converters);
         this.downstream = downstream;
         this.bufferSize = bufferSize;
         if(bufferSize < 1) {
@@ -41,19 +50,19 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
         }
     }
 
-    public ConverterPcmAudioFilter(T converter, FloatPcmAudioFilter downstream, int channelCount) {
-        this(converter, downstream, channelCount, DEFAULT_BUFFER_SIZE);
+    public ConverterPcmAudioFilter(Supplier<T> converterFactory, FloatPcmAudioFilter downstream, int channelCount) {
+        this(converterFactory, downstream, channelCount, DEFAULT_BUFFER_SIZE);
     }
 
-    public T getConverter() {
-        return converter;
+    public List<T> converters() {
+        return converters;
     }
 
     @Override
     public void process(float[][] input, int offset, int length) throws InterruptedException {
         if(outputSegments == null) {
-            for(float[] f : input) {
-                converter.process(f, offset, f, 0, length);
+            for(int i = 0; i < input.length; i++) {
+                converters.get(i).process(input[i], offset, input[i], 0, length);
             }
             downstream.process(input, 0, length);
         } else {
@@ -61,7 +70,7 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
             while(l > 0) {
                 int size = Math.min(l, bufferSize);
                 for(int i = 0; i < input.length; i++) {
-                    converter.process(input[i], offset, outputSegments[i], 0, size);
+                    converters.get(i).process(input[i], offset, outputSegments[i], 0, size);
                 }
                 downstream.process(outputSegments, 0, size);
                 l -= bufferSize;
@@ -78,16 +87,18 @@ public class ConverterPcmAudioFilter<T extends Converter> implements FloatPcmAud
     public void flush() {
         //nothing to do here
     }
-
+    
     @Override
     public void close() {
-        converter.close();
+        for(T converter : converters) {
+            converter.close();
+        }
     }
-
+    
     @Deprecated
     @Override
-    protected void finalize() throws Throwable {
-        converter.close();
+    protected final void finalize() throws Throwable {
+        close();
         super.finalize();
     }
 }

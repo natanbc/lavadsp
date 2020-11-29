@@ -11,11 +11,11 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
     private volatile float volume = 1.0f;
 
     public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
-        super(new VolumeConverter(), downstream, channelCount, bufferSize);
+        super(VolumeConverter::new, downstream, channelCount, bufferSize);
     }
 
     public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount) {
-        super(new VolumeConverter(), downstream, channelCount);
+        super(VolumeConverter::new, downstream, channelCount);
     }
 
     /**
@@ -35,7 +35,9 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
      * @return {@code this}, for chaining calls.
      */
     public VolumePcmAudioFilter setVolume(float volume) {
-        getConverter().setVolume(volume);
+        for(VolumeConverter converter : converters()) {
+            converter.setVolume(volume);
+        }
         this.volume = volume;
         return this;
     }

@@ -48,7 +48,7 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
     private final AtomicInteger enabled;
 
     public DistortionPcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount) {
-        super(new DistortionConverter(), downstream, channelCount);
+        super(DistortionConverter::new, downstream, channelCount);
         this.enabled = new AtomicInteger(DistortionConverter.ALL_FUNCTIONS);
     }
 
@@ -62,7 +62,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter enableFunctions(int functions) {
-        getConverter().enable(functions);
+        for(DistortionConverter converter : converters()) {
+            converter.enable(functions);
+        }
         enabled.updateAndGet(v->v | (functions & DistortionConverter.ALL_FUNCTIONS));
         return this;
     }
@@ -77,7 +79,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter disableFunctions(int functions) {
-        getConverter().disable(functions);
+        for(DistortionConverter converter : converters()) {
+            converter.disable(functions);
+        }
         enabled.updateAndGet(v->v & ~functions);
         return this;
     }
@@ -124,7 +128,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setSinOffset(float sinOffset) {
-        getConverter().setSinOffset(sinOffset);
+        for(DistortionConverter converter : converters()) {
+            converter.setSinOffset(sinOffset);
+        }
         this.sinOffset = sinOffset;
         return this;
     }
@@ -146,7 +152,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setSinScale(float sinScale) {
-        getConverter().setSinScale(sinScale);
+        for(DistortionConverter converter : converters()) {
+            converter.setSinScale(sinScale);
+        }
         this.sinScale = sinScale;
         return this;
     }
@@ -168,7 +176,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setCosOffset(float cosOffset) {
-        getConverter().setCosOffset(cosOffset);
+        for(DistortionConverter converter : converters()) {
+            converter.setCosOffset(cosOffset);
+        }
         this.cosOffset = cosOffset;
         return this;
     }
@@ -190,7 +200,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setCosScale(float cosScale) {
-        getConverter().setCosScale(cosScale);
+        for(DistortionConverter converter : converters()) {
+            converter.setCosScale(cosScale);
+        }
         this.cosScale = cosScale;
         return this;
     }
@@ -212,7 +224,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setTanOffset(float tanOffset) {
-        getConverter().setTanOffset(tanOffset);
+        for(DistortionConverter converter : converters()) {
+            converter.setTanOffset(tanOffset);
+        }
         this.tanOffset = tanOffset;
         return this;
     }
@@ -234,7 +248,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setTanScale(float tanScale) {
-        getConverter().setTanScale(tanScale);
+        for(DistortionConverter converter : converters()) {
+            converter.setTanScale(tanScale);
+        }
         this.tanScale = tanScale;
         return this;
     }
@@ -256,7 +272,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setOffset(float offset) {
-        getConverter().setOffset(offset);
+        for(DistortionConverter converter : converters()) {
+            converter.setOffset(offset);
+        }
         this.offset = offset;
         return this;
     }
@@ -278,7 +296,9 @@ public class DistortionPcmAudioFilter extends ConverterPcmAudioFilter<Distortion
      * @return {@code this} for chaining calls.
      */
     public DistortionPcmAudioFilter setScale(float scale) {
-        getConverter().setScale(scale);
+        for(DistortionConverter converter : converters()) {
+            converter.setScale(scale);
+        }
         this.scale = scale;
         return this;
     }

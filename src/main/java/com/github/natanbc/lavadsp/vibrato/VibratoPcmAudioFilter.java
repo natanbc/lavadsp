@@ -31,7 +31,7 @@ public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConver
     private volatile float depth = 0.5f;
 
     public VibratoPcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int sampleRate) {
-        super(new VibratoConverter(sampleRate), downstream, channelCount);
+        super(() -> new VibratoConverter(sampleRate), downstream, channelCount);
     }
 
     /**
@@ -51,7 +51,9 @@ public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConver
      * @return {@code this}, for chaining calls.
      */
     public VibratoPcmAudioFilter setFrequency(float frequency) {
-        getConverter().setFrequency(frequency);
+        for(VibratoConverter converter : converters()) {
+            converter.setFrequency(frequency);
+        }
         this.frequency = frequency;
         return this;
     }
@@ -85,7 +87,9 @@ public class VibratoPcmAudioFilter extends ConverterPcmAudioFilter<VibratoConver
      * @return {@code this}, for chaining calls.
      */
     public VibratoPcmAudioFilter setDepth(float depth) {
-        getConverter().setDepth(depth);
+        for(VibratoConverter converter : converters()) {
+            converter.setDepth(depth);
+        }
         this.depth = depth;
         return this;
     }
