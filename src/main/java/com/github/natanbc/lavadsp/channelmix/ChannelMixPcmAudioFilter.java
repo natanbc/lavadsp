@@ -1,6 +1,7 @@
 package com.github.natanbc.lavadsp.channelmix;
 
 import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
+import com.github.natanbc.lavadsp.util.VectorSupport;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
@@ -143,12 +144,8 @@ public class ChannelMixPcmAudioFilter implements FloatPcmAudioFilter {
         }
         float[] left = input[0];
         float[] right = input[1];
-        for(int i = 0; i < length; i++) {
-            float l = left[offset + i];
-            float r = right[offset + i];
-            left[offset + i]  = Math.max(-1f, Math.min(1f, leftToLeft * l + rightToLeft * r));
-            right[offset + i] = Math.max(-1f, Math.min(1f, leftToRight * l + rightToRight * r));
-        }
+        VectorSupport.channelMix(left, right, offset, length,
+                leftToLeft, leftToRight, rightToLeft, rightToRight);
         downstream.process(input, offset, length);
     }
     

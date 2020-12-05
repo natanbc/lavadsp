@@ -1,6 +1,7 @@
 package com.github.natanbc.lavadsp.rotation;
 
 import com.github.natanbc.lavadsp.util.DoubleToDoubleFunction;
+import com.github.natanbc.lavadsp.util.VectorSupport;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
@@ -58,15 +59,7 @@ public class RotationPcmAudioFilter implements FloatPcmAudioFilter {
         }
         float[] left = input[0];
         float[] right = input[1];
-        for(int i = 0; i < length; i++) {
-            //sin(x) and cos(x) return a value in the range [-1, 1], but we want [0, 1], so
-            //add one to move to [0, 2] and divide by 2 to obtain [0, 1]
-            double sin = Math.sin(x);
-            left[offset + i] = left[offset + i] * (float)(sin + 1f) / 2f;
-            //cos(x + pi/2) == -sin(x), so just reuse the already computed sine value
-            right[offset + i] = right[offset + i] * (float)(-sin + 1f) / 2f;
-            x += dI;
-        }
+        x = VectorSupport.rotation(left, right, offset, length, x, dI);
         downstream.process(input, offset, length);
     }
     

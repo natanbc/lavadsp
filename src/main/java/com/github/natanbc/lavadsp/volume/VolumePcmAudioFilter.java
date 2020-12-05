@@ -1,21 +1,28 @@
 package com.github.natanbc.lavadsp.volume;
 
-import com.github.natanbc.lavadsp.ConverterPcmAudioFilter;
 import com.github.natanbc.lavadsp.util.FloatToFloatFunction;
+import com.github.natanbc.lavadsp.util.VectorSupport;
 import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
 
 /**
  * Updates the effect volume, with a multiplier ranging from 0 to 5.
  */
-public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverter> {
-    private volatile float volume = 1.0f;
+public class VolumePcmAudioFilter implements FloatPcmAudioFilter {
+    private final FloatPcmAudioFilter downstream;
+    private float volume = 1.0f;
 
-    public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
-        super(VolumeConverter::new, downstream, channelCount, bufferSize);
+    public VolumePcmAudioFilter(FloatPcmAudioFilter downstream) {
+        this.downstream = downstream;
     }
-
+    
+    @Deprecated
+    public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount, int bufferSize) {
+        this(downstream);
+    }
+    
+    @Deprecated
     public VolumePcmAudioFilter(FloatPcmAudioFilter downstream, int channelCount) {
-        super(VolumeConverter::new, downstream, channelCount);
+        this(downstream);
     }
 
     /**
@@ -35,8 +42,11 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
      * @return {@code this}, for chaining calls.
      */
     public VolumePcmAudioFilter setVolume(float volume) {
-        for(VolumeConverter converter : converters()) {
-            converter.setVolume(volume);
+        if(volume <= 0) {
+            throw new IllegalArgumentException("Volume <= 0.0");
+        }
+        if(volume > 5) {
+            throw new IllegalArgumentException("Volume > 5.0");
         }
         this.volume = volume;
         return this;
@@ -56,11 +66,28 @@ public class VolumePcmAudioFilter extends ConverterPcmAudioFilter<VolumeConverte
 
     @Override
     public void process(float[][] input, int offset, int length) throws InterruptedException {
-        //don't call the native library if volume is (close to) 1.0
         if(Math.abs(1.0 - volume) < 0.02) {
             downstream.process(input, offset, length);
             return;
         }
-        super.process(input, offset, length);
+        for(float[] array : input) {
+            VectorSupport.volume(array, offset, length, volume);
+        }
+        downstream.process(input, offset, length);
+    }
+    
+    @Override
+    public void seekPerformed(long requestedTime, long providedTime) {
+        //nothing to do
+    }
+    
+    @Override
+    public void flush() throws InterruptedException {
+        //nothing to do
+    }
+    
+    @Override
+    public void close() {
+        //nothing to do
     }
 }
