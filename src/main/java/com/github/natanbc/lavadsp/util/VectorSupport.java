@@ -1,5 +1,13 @@
 package com.github.natanbc.lavadsp.util;
 
+import com.sedmelluq.discord.lavaplayer.filter.FloatPcmAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.ShortPcmAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.SplitShortPcmAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.UniversalPcmAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.converter.ToFloatAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.converter.ToShortAudioFilter;
+import com.sedmelluq.discord.lavaplayer.filter.converter.ToSplitShortAudioFilter;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +18,18 @@ import java.util.List;
  */
 public class VectorSupport {
     private static final FilterFunctions FUNCTIONS = findImplementation();
+    
+    public static UniversalPcmAudioFilter makeUniversal(SplitShortPcmAudioFilter filter, int channelCount) {
+        return FUNCTIONS.makeUniversal(filter, channelCount);
+    }
+    
+    public static UniversalPcmAudioFilter makeUniversal(FloatPcmAudioFilter filter, int channelCount) {
+        return FUNCTIONS.makeUniversal(filter, channelCount);
+    }
+    
+    public static UniversalPcmAudioFilter makeUniversal(ShortPcmAudioFilter filter, int channelCount) {
+        return FUNCTIONS.makeUniversal(filter, channelCount);
+    }
     
     public static void channelMix(float[] left, float[] right, int offset, int length,
                                   float ltl, float ltr, float rtl, float rtr) {
@@ -69,6 +89,18 @@ public class VectorSupport {
      * better implementations.
      */
     public interface FilterFunctions {
+        default UniversalPcmAudioFilter makeUniversal(SplitShortPcmAudioFilter filter, int channelCount) {
+            return new ToSplitShortAudioFilter(filter, channelCount);
+        }
+    
+        default UniversalPcmAudioFilter makeUniversal(FloatPcmAudioFilter filter, int channelCount) {
+            return new ToFloatAudioFilter(filter, channelCount);
+        }
+    
+        default UniversalPcmAudioFilter makeUniversal(ShortPcmAudioFilter filter, int channelCount) {
+            return new ToShortAudioFilter(filter, channelCount);
+        }
+        
         default void channelMix(float[] left, float[] right, int offset, int length,
                         float ltl, float ltr, float rtl, float rtr) {
             for(int i = 0; i < length; i++) {
