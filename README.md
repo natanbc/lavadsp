@@ -53,13 +53,6 @@ player.setFilterFactory((track, format, output)->{
 });
 ```
 
-As of the time of writing (June 9, 2018), the following filters exist:
-
-* [Distortion](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/distortion/DistortionPcmAudioFilter.html)
-* [Timescale](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/timescale/TimescalePcmAudioFilter.html)
-* [Tremolo](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/tremolo/TremoloPcmAudioFilter.html)
-* [Vibrato](https://natanbc.github.io/lavadsp/com/github/natanbc/lavadsp/vibrato/VibratoPcmAudioFilter.html)
-
 ### Chaining
 
 Filters may be chained to merge their effects:
@@ -74,4 +67,4 @@ player.setFilterFactory((track, format, output)->{
 });
 ```
 
-An alternative is using lavaplayer's FilterChainBuilder class. An example usage can be found [here](https://github.com/natanbc/andesite-node/blob/dc59e2243346de77975d2b9e2c5d6a52f0eb729c/api/src/main/java/andesite/node/player/filter/FilterChainConfiguration.java#L179-L194)
+To dynamically choose which filters to use, you can see [this example](https://github.com/natanbc/andesite/blob/0ee816125c99ca0921a1cb4280f30398ac520a9d/api/src/main/java/andesite/player/filter/FilterChainConfiguration.java#L197-L218)
