@@ -2,8 +2,6 @@ package com.github.natanbc.lavadsp.vibrato;
 
 import com.github.natanbc.lavadsp.Converter;
 
-import java.nio.FloatBuffer;
-
 public class VibratoConverter implements Converter {
     private static final int ADDITIONAL_DELAY = 3;
     private static final float BASE_DELAY_SEC = 0.002f; // 2 ms

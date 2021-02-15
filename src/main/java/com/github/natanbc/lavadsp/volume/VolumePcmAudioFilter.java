@@ -82,7 +82,7 @@ public class VolumePcmAudioFilter implements FloatPcmAudioFilter {
     }
     
     @Override
-    public void flush() throws InterruptedException {
+    public void flush() {
         //nothing to do
     }
     
