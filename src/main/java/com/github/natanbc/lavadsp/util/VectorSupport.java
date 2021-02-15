@@ -139,8 +139,25 @@ public class VectorSupport {
         }
         
         default void volume(float[] array, int offset, int length, float volume) {
+            //Ported from lavaplayer's PcmVolumeProcessor
+            //if (activeVolume <= 150) {
+            //  float floatMultiplier = (float) Math.tan(activeVolume * 0.0079f);
+            //  integerMultiplier = (int) (floatMultiplier * 10000);
+            //} else {
+            //  integerMultiplier = 24621 * activeVolume / 150;
+            //}
+            float multiplier;
+            if (volume <= 1.5f) {
+                multiplier = (float)(Math.tan(volume * 0.79f) * 10000);
+            } else {
+                multiplier = 24612 * (volume * 100) / 150;
+            }
             for(int i = 0; i < length; i++) {
-                array[offset + i] = Math.max(-1f, Math.min(1f, array[offset + i] * volume));
+                //int value = buffer.get(i) * integerMultiplier / 10000;
+                //buffer.put(i, (short) Math.max(-32767, Math.min(32767, value)));
+                array[offset + i] = Math.max(-1f, Math.min(1f,
+                        array[offset + i] * multiplier / 10000
+                ));
             }
         }
     }
