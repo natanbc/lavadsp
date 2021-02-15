@@ -42,8 +42,8 @@ public class VolumePcmAudioFilter implements FloatPcmAudioFilter {
      * @return {@code this}, for chaining calls.
      */
     public VolumePcmAudioFilter setVolume(float volume) {
-        if(volume <= 0) {
-            throw new IllegalArgumentException("Volume <= 0.0");
+        if(volume < 0) {
+            throw new IllegalArgumentException("Volume < 0.0");
         }
         if(volume > 5) {
             throw new IllegalArgumentException("Volume > 5.0");
