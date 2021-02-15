@@ -65,6 +65,9 @@ public class KaraokePcmAudioFilter implements FloatPcmAudioFilter {
      */
     public KaraokePcmAudioFilter setLevel(float level) {
         this.level = level;
+        if(converter != null) {
+            converter.setLevel(level);
+        }
         return this;
     }
 
@@ -98,6 +101,9 @@ public class KaraokePcmAudioFilter implements FloatPcmAudioFilter {
      */
     public KaraokePcmAudioFilter setMonoLevel(float level) {
         this.monoLevel = level;
+        if(converter != null) {
+            converter.setMonoLevel(level);
+        }
         return this;
     }
 
@@ -131,6 +137,9 @@ public class KaraokePcmAudioFilter implements FloatPcmAudioFilter {
      */
     public KaraokePcmAudioFilter setFilterBand(float band) {
         this.filterBand = band;
+        if(converter != null) {
+            converter.setFilterBand(band);
+        }
         return this;
     }
 
@@ -164,6 +173,9 @@ public class KaraokePcmAudioFilter implements FloatPcmAudioFilter {
      */
     public KaraokePcmAudioFilter setFilterWidth(float width) {
         this.filterWidth = level;
+        if(converter != null) {
+            converter.setFilterWidth(width);
+        }
         return this;
     }
 
