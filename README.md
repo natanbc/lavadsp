@@ -63,7 +63,7 @@ player.setFilterFactory((track, format, output)->{
     tremolo.setDepth(0.75);
     TimescalePcmAudioFilter timescale = new TimescalePcmAudioFilter(tremolo, format.channelCount, format.sampleRate);
     timescale.setSpeed(1.5);
-    return Arrays.asList(tremolo, timescale);
+    return Arrays.asList(timescale, tremolo);
 });
 ```
 
