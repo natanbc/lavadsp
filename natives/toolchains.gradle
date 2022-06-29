@@ -131,13 +131,9 @@ model {
         visualCpp(VisualCpp)
         clang(Clang) {
             target("darwin_x86_64") {
-                cCompiler.executable 'x86_64-apple-darwin15-clang'
-                cppCompiler.executable 'x86_64-apple-darwin15-clang++-libc++'
-                linker.executable 'x86_64-apple-darwin15-clang++-libc++'
                 linker.withArguments { args ->
                     args.removeIf { it.startsWith("-Wl,-soname") }
                 }
-                staticLibArchiver.executable 'x86_64-apple-darwin15-ar'
             }
         }
         glibc(Gcc) {
