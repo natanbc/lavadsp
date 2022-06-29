@@ -139,7 +139,7 @@ jobs:
         if: steps.cache-natives.outputs.cache-hit != 'true'
         run: |
             mkdir freebsd_sysroot
-            curl -s https://download.freebsd.org/ftp/releases/amd64/11.4-RELEASE/base.txz \
+            curl -s http://ftp-archive.freebsd.org/pub/FreeBSD-Archive/old-releases/amd64/11.4-RELEASE/base.txz \
                 | tar -xJf - -C freebsd_sysroot ./lib ./usr/lib ./usr/libdata ./usr/include ./usr/share/keys ./etc
       - name: Build freebsd natives
         if: steps.cache-natives.outputs.cache-hit != 'true'
