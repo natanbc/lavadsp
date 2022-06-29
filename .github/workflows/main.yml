@@ -82,6 +82,7 @@ jobs:
           name: linux-arm-natives
           path: src/main/resources/natives/*
   mac-natives:
+    if: "false"
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -178,7 +179,8 @@ jobs:
           name: windows-natives
           path: src/main/resources/natives/*
   build:
-    needs: [linux-x86-natives, linux-arm-natives, mac-natives, freebsd-natives, windows-natives]
+    #needs: [linux-x86-natives, linux-arm-natives, mac-natives, freebsd-natives, windows-natives]
+    needs: [linux-x86-natives, linux-arm-natives, freebsd-natives, windows-natives]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
