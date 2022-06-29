@@ -61,8 +61,8 @@ public class DistortionConverter implements Converter {
     @Override
     public void process(float[] input, int inputOffset, float[] output, int outputOffset, int samples) {
         boolean useSin = (enabled & SIN) != 0;
-        boolean useCos = (enabled & SIN) != 0;
-        boolean useTan = (enabled & SIN) != 0;
+        boolean useCos = (enabled & COS) != 0;
+        boolean useTan = (enabled & TAN) != 0;
         for(int i = 0; i < samples; i++) {
             float sample = input[inputOffset + i];
             float sampleSin = sinOffset + (float)Math.sin(sample * sinScale);
