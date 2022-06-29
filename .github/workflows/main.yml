@@ -194,6 +194,7 @@ jobs:
           name: linux-arm-natives
           path: src/main/resources/natives/
       - uses: actions/download-artifact@v2
+        if: "false"
         with:
           name: mac-natives
           path: src/main/resources/natives/
