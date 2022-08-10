@@ -25,7 +25,7 @@ task buildDarwin {
     doLast {
         def stdout = new ByteArrayOutputStream()
         exec {
-            commandLine 'lipo', avx2FilePath.getAbsoluteFile(), aarch64FilePath.getAbsoluteFile(), '-output', finalFilePath.getAbsoluteFile(), '-create'
+            commandLine 'lipo', x86FilePath.getAbsoluteFile(), aarch64FilePath.getAbsoluteFile(), '-output', finalFilePath.getAbsoluteFile(), '-create'
             standardOutput = stdout
         }
 
