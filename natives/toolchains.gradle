@@ -15,21 +15,16 @@ task buildWin64 {}
 task buildDarwin {
     dependsOn buildDarwin64, buildDarwinAarch64
 
-    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + "darwin" + "/")
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/darwin")
 
     def x86FilePath = new File(newPath, 'libtimescale-x86-64.dylib')
     def aarch64FilePath = new File(newPath, 'libtimescale-aarch64.dylib')
-    def avx2FilePath = new File(newPath, 'libtimescale-avx2.dylib')
     def finalFilePath = new File(newPath, 'libtimescale.dylib')
 
     doLast {
-        def stdout = new ByteArrayOutputStream()
         exec {
             commandLine 'lipo', x86FilePath.getAbsoluteFile(), aarch64FilePath.getAbsoluteFile(), '-output', finalFilePath.getAbsoluteFile(), '-create'
-            standardOutput = stdout
         }
-
-        println "Output: $stdout"
         x86FilePath.delete()
         aarch64FilePath.delete()
     }
