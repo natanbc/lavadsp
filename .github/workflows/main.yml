@@ -82,8 +82,7 @@ jobs:
           name: linux-arm-natives
           path: src/main/resources/natives/*
   mac-natives:
-    if: "false"
-    runs-on: ubuntu-20.04
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -100,20 +99,11 @@ jobs:
         if: steps.cache-natives.outputs.cache-hit != 'true'
         with:
           java-version: 15
-      - name: Install darwin compiler
-        if: steps.cache-natives.outputs.cache-hit != 'true'
-        run: |
-          curl -sL https://github.com/natanbc/actions-binaries/releases/download/1/osxcross.tar.gz -o - | tar -xzf -
-          sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
-          sudo apt update
-          sudo apt install libssl1.0.0
       - name: Build darwin natives
         if: steps.cache-natives.outputs.cache-hit != 'true'
         run: |
           chmod +x gradlew
-          export PATH="$PATH:$(pwd)/osxcross/bin"
-          export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$(pwd)/osxcross/lib"
-          ./gradlew buildDarwin64
+          ./gradlew buildDarwin
       - uses: actions/upload-artifact@v2
         with:
           name: mac-natives
@@ -179,8 +169,7 @@ jobs:
           name: windows-natives
           path: src/main/resources/natives/*
   build:
-    #needs: [linux-x86-natives, linux-arm-natives, mac-natives, freebsd-natives, windows-natives]
-    needs: [linux-x86-natives, linux-arm-natives, freebsd-natives, windows-natives]
+    needs: [linux-x86-natives, linux-arm-natives, mac-natives, freebsd-natives, windows-natives]
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -194,7 +183,6 @@ jobs:
           name: linux-arm-natives
           path: src/main/resources/natives/
       - uses: actions/download-artifact@v2
-        if: "false"
         with:
           name: mac-natives
           path: src/main/resources/natives/

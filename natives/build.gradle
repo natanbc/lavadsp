@@ -49,7 +49,6 @@ model {
     binaries {
         all {
             lib library: 'jni', linkage: 'api'
-
             if(toolChain in VisualCpp) {
                 cppCompiler.define "ST_NO_EXCEPTION_HANDLING"
                 cppCompiler.args << '/std:c++17' << "/Ox"
@@ -96,19 +95,28 @@ model {
 tasks.withType(LinkSharedLibrary) {
     def flavor = it.linkedFile.asFile.orNull.getParentFile().getName()
     def filename = it.installName.get()
-    def arch = targetDirectoryName(it.targetPlatform.get())
-    if(arch.contains("darwin")) {
-        filename = filename.replace(".so", ".dylib")
-    }
+    def target = it.targetPlatform.get()
     if(flavor == "avx2") {
-        if(!isX86(it.targetPlatform.get())) {
+        if(!isX86(target)) {
             return
         }
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
         filename = baseName + "-avx2" + filename.substring(filename.lastIndexOf('.'))
+    } else { // keep darwin avx2 natives with the default name, no need to avoid conflict with arm64
+        if(isDarwin(target)) {
+            def baseName = filename.substring(0, filename.lastIndexOf('.'))
+            if(isX86_64(target)) {
+                baseName += "-x86-64"
+            } else if(isArm64(target)) {
+                baseName += "-aarch64"
+            } else {
+                throw new Exception("Unhandled darwin target '" + target + "'")
+            }
+            filename = baseName + ".dylib"
+        }
     }
-    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + targetDirectoryName(target) + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
     it.linkedFile.set(newPath)
-    taskForTarget(it.targetPlatform.get()).dependsOn it
+    taskForTarget(target).dependsOn it
 }

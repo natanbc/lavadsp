@@ -1,6 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 task buildDarwin64 {}
+task buildDarwinAarch64 {}
 task buildFreebsd64 {}
 task buildLinuxGlibc32 {}
 task buildLinuxGlibc64 {}
@@ -12,7 +13,21 @@ task buildWin32 {}
 task buildWin64 {}
 
 task buildDarwin {
-    dependsOn buildDarwin64
+    dependsOn buildDarwin64, buildDarwinAarch64
+
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/darwin")
+
+    def x86FilePath = new File(newPath, 'libtimescale-x86-64.dylib')
+    def aarch64FilePath = new File(newPath, 'libtimescale-aarch64.dylib')
+    def finalFilePath = new File(newPath, 'libtimescale.dylib')
+
+    doLast {
+        exec {
+            commandLine 'lipo', x86FilePath.getAbsoluteFile(), aarch64FilePath.getAbsoluteFile(), '-output', finalFilePath.getAbsoluteFile(), '-create'
+        }
+        x86FilePath.delete()
+        aarch64FilePath.delete()
+    }
 }
 
 task buildFreebsd {
@@ -37,6 +52,7 @@ static def platformName(p) {
 
 def targetDirectory = [
         darwin_x86_64: "darwin",
+        darwin_aarch64: "darwin",
         freebsd_x86_64: "freebsd-x86-64",
         linux_glibc_x86: "linux-x86",
         linux_glibc_x86_64: "linux-x86-64",
@@ -58,6 +74,7 @@ project.ext.targetDirectoryName = { platform ->
 
 def tasksByTarget = [
         darwin_x86_64:       buildDarwin64,
+        darwin_aarch64:      buildDarwinAarch64,
         freebsd_x86_64:      buildFreebsd64,
         linux_glibc_x86:     buildLinuxGlibc32,
         linux_glibc_x86_64:  buildLinuxGlibc64,
@@ -131,13 +148,17 @@ model {
         visualCpp(VisualCpp)
         clang(Clang) {
             target("darwin_x86_64") {
-                cCompiler.executable 'x86_64-apple-darwin15-clang'
-                cppCompiler.executable 'x86_64-apple-darwin15-clang++-libc++'
-                linker.executable 'x86_64-apple-darwin15-clang++-libc++'
                 linker.withArguments { args ->
                     args.removeIf { it.startsWith("-Wl,-soname") }
                 }
-                staticLibArchiver.executable 'x86_64-apple-darwin15-ar'
+            }
+            target("darwin_aarch64") {
+                cCompiler.withArguments { args -> args << '-target' << 'arm64-apple-macos11' << '-mmacosx-version-min=10.12.6' }
+                cppCompiler.withArguments { args -> args << '-target' << 'arm64-apple-macos11' << '-mmacosx-version-min=10.12.6'}
+                linker.withArguments { args ->
+                    args.removeIf { it.startsWith("-Wl,-soname") }
+                    args << '-target' << 'arm64-apple-macos11'
+                }
             }
         }
         glibc(Gcc) {
@@ -199,6 +220,10 @@ model {
     platforms {
         darwin_x86_64 {
             architecture "x86_64"
+            operatingSystem "mac"
+        }
+        darwin_aarch64 {
+            architecture "aarch64"
             operatingSystem "mac"
         }
         freebsd_x86_64 {
