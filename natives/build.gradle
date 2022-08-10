@@ -96,23 +96,24 @@ tasks.withType(LinkSharedLibrary) {
     def flavor = it.linkedFile.asFile.orNull.getParentFile().getName()
     def filename = it.installName.get()
     def target = it.targetPlatform.get()
-    if(isDarwin(target)) {
-        def baseName = filename.substring(0, filename.lastIndexOf('.'))
-        if(isX86_64(target)) {
-            filename += "-x86-64"
-        } else if(isArm64(target)) {
-            filename += "-aarch64"
-        } else {
-            throw new Exception("Unhandled darwin target '" + target + "'")
-        }
-        filename = baseName + ".dylib"
-    }
     if(flavor == "avx2") {
         if(!isX86(target)) {
             return
         }
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
         filename = baseName + "-avx2" + filename.substring(filename.lastIndexOf('.'))
+    } else { // keep darwin avx2 natives with the default name, no need to avoid conflict with arm64
+        if(isDarwin(target)) {
+            def baseName = filename.substring(0, filename.lastIndexOf('.'))
+            if(isX86_64(target)) {
+                baseName += "-x86-64"
+            } else if(isArm64(target)) {
+                baseName += "-aarch64"
+            } else {
+                throw new Exception("Unhandled darwin target '" + target + "'")
+            }
+            filename = baseName + ".dylib"
+        }
     }
     def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + targetDirectoryName(target) + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
