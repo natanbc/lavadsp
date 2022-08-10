@@ -114,8 +114,8 @@ tasks.withType(LinkSharedLibrary) {
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
         filename = baseName + "-avx2" + filename.substring(filename.lastIndexOf('.'))
     }
-    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + arch + "/" + filename).getAbsoluteFile()
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + targetDirectoryName(target) + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
     it.linkedFile.set(newPath)
-    taskForTarget(it.targetPlatform.get()).dependsOn it
+    taskForTarget(target).dependsOn it
 }
