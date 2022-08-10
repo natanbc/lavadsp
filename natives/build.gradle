@@ -49,7 +49,6 @@ model {
     binaries {
         all {
             lib library: 'jni', linkage: 'api'
-
             if(toolChain in VisualCpp) {
                 cppCompiler.define "ST_NO_EXCEPTION_HANDLING"
                 cppCompiler.args << '/std:c++17' << "/Ox"

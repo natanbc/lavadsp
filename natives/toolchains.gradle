@@ -1,6 +1,7 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
 task buildDarwin64 {}
+task buildDarwinAarch64 {}
 task buildFreebsd64 {}
 task buildLinuxGlibc32 {}
 task buildLinuxGlibc64 {}
@@ -12,7 +13,25 @@ task buildWin32 {}
 task buildWin64 {}
 
 task buildDarwin {
-    dependsOn buildDarwin64
+    dependsOn buildDarwin64, buildDarwinAarch64
+
+    def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + "darwin" + "/")
+
+    def x86FilePath = new File(newPath, 'libtimescale-x86-64.dylib')
+    def aarch64FilePath = new File(newPath, 'libtimescale-aarch64.dylib')
+    def finalFilePath = new File(newPath, 'libtimescale.dylib')
+
+    doLast {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'lipo', x86FilePath.getAbsoluteFile(), aarch64FilePath.getAbsoluteFile(), '-output', finalFilePath.getAbsoluteFile(), '-create'
+            standardOutput = stdout
+        }
+
+        println "Output: $stdout"
+        x86FilePath.delete()
+        aarch64FilePath.delete()
+    }
 }
 
 task buildFreebsd {
@@ -37,6 +56,7 @@ static def platformName(p) {
 
 def targetDirectory = [
         darwin_x86_64: "darwin",
+        darwin_aarch64: "darwin",
         freebsd_x86_64: "freebsd-x86-64",
         linux_glibc_x86: "linux-x86",
         linux_glibc_x86_64: "linux-x86-64",
@@ -58,6 +78,7 @@ project.ext.targetDirectoryName = { platform ->
 
 def tasksByTarget = [
         darwin_x86_64:       buildDarwin64,
+        darwin_aarch64:      buildDarwinAarch64,
         freebsd_x86_64:      buildFreebsd64,
         linux_glibc_x86:     buildLinuxGlibc32,
         linux_glibc_x86_64:  buildLinuxGlibc64,
@@ -135,6 +156,14 @@ model {
                     args.removeIf { it.startsWith("-Wl,-soname") }
                 }
             }
+            target("darwin_aarch64") {
+                // add flags for m1
+                cCompiler.withArguments { args -> args << '-target arm64-apple-macos11'}
+                cppCompiler.withArguments { args -> args << '-target arm64-apple-macos11'}
+                linker.withArguments { args ->
+                    args.removeIf { it.startsWith("-Wl,-soname") }
+                }
+            }
         }
         glibc(Gcc) {
             target("linux_glibc_arm") {
@@ -195,6 +224,10 @@ model {
     platforms {
         darwin_x86_64 {
             architecture "x86_64"
+            operatingSystem "mac"
+        }
+        darwin_aarch64 {
+            architecture "aarch64"
             operatingSystem "mac"
         }
         freebsd_x86_64 {
