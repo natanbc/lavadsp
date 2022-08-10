@@ -118,6 +118,5 @@ tasks.withType(LinkSharedLibrary) {
     def newPath = new File(rootProject.projectDir, "src/main/resources/natives/" + targetDirectoryName(target) + "/" + filename).getAbsoluteFile()
     newPath.getParentFile().mkdirs()
     it.linkedFile.set(newPath)
-    println("TARGET: " + target + ", PATH: " + newPath)
     taskForTarget(target).dependsOn it
 }
