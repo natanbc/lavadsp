@@ -31,7 +31,6 @@ task buildDarwin {
 
         println "Output: $stdout"
         x86FilePath.delete()
-        avx2FilePath.delete()
         aarch64FilePath.delete()
     }
 }
