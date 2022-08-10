@@ -95,12 +95,20 @@ model {
 tasks.withType(LinkSharedLibrary) {
     def flavor = it.linkedFile.asFile.orNull.getParentFile().getName()
     def filename = it.installName.get()
-    def arch = targetDirectoryName(it.targetPlatform.get())
-    if(arch.contains("darwin")) {
-        filename = filename.replace(".so", ".dylib")
+    def target = it.targetPlatform.get()
+    if(isDarwin(target)) {
+        def baseName = filename.substring(0, filename.lastIndexOf('.'))
+        if(isX86_64(target)) {
+            filename += "-x86-64"
+        } else if(isArm64(target)) {
+            filename += "-aarch64"
+        } else {
+            throw new Exception("Unhandled darwin target '" + target + "'")
+        }
+        filename = baseName + ".dylib"
     }
     if(flavor == "avx2") {
-        if(!isX86(it.targetPlatform.get())) {
+        if(!isX86(target)) {
             return
         }
         def baseName = filename.substring(0, filename.lastIndexOf('.'))
