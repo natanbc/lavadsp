@@ -160,8 +160,8 @@ model {
             }
             target("darwin_aarch64") {
                 // add flags for m1
-                cCompiler.withArguments { args -> args << '-target arm64-apple-macos11'}
-                cppCompiler.withArguments { args -> args << '-target arm64-apple-macos11'}
+                cCompiler.withArguments { args -> args << '-target arm64-apple-macos11' << '-mmacosx-version-min=10.12.6' }
+                cppCompiler.withArguments { args -> args << '-target arm64-apple-macos11' << '-mmacosx-version-min=10.12.6'}
                 linker.withArguments { args ->
                     args.removeIf { it.startsWith("-Wl,-soname") }
                 }
