@@ -103,7 +103,7 @@ jobs:
         if: steps.cache-natives.outputs.cache-hit != 'true'
         run: |
           chmod +x gradlew
-          ./gradlew buildDarwin64
+          ./gradlew buildDarwin
       - uses: actions/upload-artifact@v2
         with:
           name: mac-natives
