@@ -44,11 +44,13 @@ jobs:
           name: linux-x86-natives
           path: src/main/resources/natives/*
   linux-arm-natives:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
+    container: ubuntu:18.04
+    env:
+      TZ: Etc/UTC
+      DEBIAN_FRONTEND: noninteractive
     steps:
       - uses: actions/checkout@v2
-        with:
-          submodules: recursive
       - name: Cache natives
         uses: actions/cache@v2
         id: cache-natives
@@ -68,8 +70,10 @@ jobs:
         run: |
           # installing these two breaks i386 compilation
           # https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1300211
-          sudo apt install g++-arm-linux-gnueabihf
-          sudo apt install g++-aarch64-linux-gnu
+          apt update
+          apt install curl git -y
+          apt install g++-arm-linux-gnueabihf -y
+          apt install g++-aarch64-linux-gnu -y
           curl -sL https://github.com/natanbc/actions-binaries/releases/download/1/aarch64-linux-musl-cross.tgz -o - | tar xzf -
       - name: Build ARM natives
         if: steps.cache-natives.outputs.cache-hit != 'true'
